@@ -11,7 +11,8 @@ class ScreenSearchBar extends StatelessWidget {
     required this.searchFieldController,
     required this.searchFieldDummyText,
 
-    super.key});
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,21 +28,23 @@ class ScreenSearchBar extends StatelessWidget {
         children: [
           SizedBox(
             width: isDesktop
-                    ? 500 : isTablet ? 350 : 300,
+                ? 500
+                : isTablet
+                ? 350
+                : 300,
             child: AppTextField(
               textController: searchFieldController,
               placeholder: searchFieldDummyText,
               placeholderColor: iconColor,
-              prefixIcon: Icon(
-                Icons.search
-              ),
+              prefixIcon: Icon(Icons.search),
               backgroundColor: whiteColor,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: iconColor,
-                  width: 0.5
-                )
+                borderSide: BorderSide(color: iconColor, width: 0.5),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: iconColor, width: 0.5),
               ),
             ),
           ),

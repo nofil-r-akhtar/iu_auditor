@@ -8,14 +8,15 @@ class AppTextThin extends StatelessWidget {
   final FontFamily? fontFamily;
   final Color? color;
   final int? lineLimit;
-  const AppTextThin(
-      {super.key,
-      required this.text,
-      this.fontSize,
-      this.textAlign,
-      this.fontFamily,
-      this.lineLimit,
-      this.color});
+  const AppTextThin({
+    super.key,
+    required this.text,
+    this.fontSize,
+    this.textAlign,
+    this.fontFamily,
+    this.lineLimit,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +26,12 @@ class AppTextThin extends StatelessWidget {
       textAlign: textAlign,
       softWrap: true,
       style: TextStyle(
-          fontSize: fontSize ?? 14,
-          overflow: TextOverflow.ellipsis,
-          fontWeight: FontWeight.w200,
-          fontFamily: fontFamily!.name,
-          color: color),
+        fontSize: fontSize ?? 14,
+        overflow: TextOverflow.ellipsis,
+        fontWeight: FontWeight.w200,
+        fontFamily: fontFamily?.name,
+        color: color,
+      ),
     );
   }
 }
@@ -41,14 +43,15 @@ class AppTextRegular extends StatelessWidget {
   final FontFamily? fontFamily;
   final Color? color;
   final int? lineLimit;
-  const AppTextRegular(
-      {super.key,
-      required this.text,
-      this.fontSize,
-      this.textAlign,
-      this.fontFamily,
-      this.lineLimit = 4,
-      this.color});
+  const AppTextRegular({
+    super.key,
+    required this.text,
+    this.fontSize,
+    this.textAlign,
+    this.fontFamily,
+    this.lineLimit = 4,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,12 +62,12 @@ class AppTextRegular extends StatelessWidget {
       textAlign: textAlign,
       // softWrap: true,
       style: TextStyle(
-          // overflow: TextOverflow.ellipsis,
-          fontSize: fontSize ?? 14,
-          fontWeight: FontWeight.w300,
-          fontFamily: fontFamily?.name,
-          inherit: false,
-          color: color),
+        // overflow: TextOverflow.ellipsis,
+        fontSize: fontSize ?? 14,
+        fontWeight: FontWeight.w300,
+        fontFamily: fontFamily?.name,
+        color: color,
+      ),
     );
   }
 }
@@ -76,14 +79,15 @@ class AppTextMedium extends StatelessWidget {
   final FontFamily? fontFamily;
   final Color? color;
   final int? lineLimit;
-  const AppTextMedium(
-      {super.key,
-      required this.text,
-      this.fontSize,
-      this.textAlign,
-      this.fontFamily,
-      this.lineLimit,
-      this.color});
+  const AppTextMedium({
+    super.key,
+    required this.text,
+    this.fontSize,
+    this.textAlign,
+    this.fontFamily,
+    this.lineLimit,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -92,11 +96,11 @@ class AppTextMedium extends StatelessWidget {
       ////// maxLines: lineLimit!,
       textAlign: textAlign,
       style: TextStyle(
-          fontSize: fontSize ?? 16,
-          fontWeight: FontWeight.w400,
-          fontFamily: fontFamily?.name,
-          inherit: false,
-          color: color),
+        fontSize: fontSize ?? 16,
+        fontWeight: FontWeight.w400,
+        fontFamily: fontFamily?.name,
+        color: color,
+      ),
     );
   }
 }
@@ -109,15 +113,16 @@ class AppTextSemiBold extends StatelessWidget {
   final Color? color;
   final int? lineLimit;
   final double? h;
-  const AppTextSemiBold(
-      {super.key,
-      required this.text,
-      this.h,
-      this.fontSize,
-      this.textAlign,
-      this.fontFamily,
-      this.lineLimit = 4,
-      this.color});
+  const AppTextSemiBold({
+    super.key,
+    required this.text,
+    this.h,
+    this.fontSize,
+    this.textAlign,
+    this.fontFamily,
+    this.lineLimit = 4,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -126,12 +131,13 @@ class AppTextSemiBold extends StatelessWidget {
       // maxLines: lineLimit!,
       textAlign: textAlign,
       style: TextStyle(
-          height: h,
-          fontSize: fontSize ?? 16,
-          fontWeight: FontWeight.w500,
-          fontFamily: fontFamily?.name,
-          inherit: false,
-          color: color),
+        height: h,
+        fontSize: fontSize ?? 16,
+        fontWeight: FontWeight.w500,
+        fontFamily: fontFamily?.name,
+
+        color: color,
+      ),
     );
   }
 }
@@ -163,12 +169,13 @@ class AppTextBold extends StatelessWidget {
       textAlign: textAlign,
       maxLines: lineLimit!,
       style: TextStyle(
-          height: 1,
-          decoration: textDecoration,
-          fontSize: fontSize ?? 18,
-          fontWeight: FontWeight.w800,
-          fontFamily: fontFamily?.name,
-          color: color),
+        height: 1,
+        decoration: textDecoration,
+        fontSize: fontSize ?? 18,
+        fontWeight: FontWeight.w800,
+        fontFamily: fontFamily?.name,
+        color: color,
+      ),
     );
   }
 }
@@ -180,14 +187,15 @@ class AppTextItalic extends StatelessWidget {
   final TextAlign? textAlign;
   final Color? color;
   final int? lineLimit;
-  const AppTextItalic(
-      {super.key,
-      required this.text,
-      this.fontSize,
-      this.textAlign,
-      this.fontFamily,
-      this.color,
-      this.lineLimit});
+  const AppTextItalic({
+    super.key,
+    required this.text,
+    this.fontSize,
+    this.textAlign,
+    this.fontFamily,
+    this.color,
+    this.lineLimit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -196,10 +204,11 @@ class AppTextItalic extends StatelessWidget {
       ////// maxLines: lineLimit!,
       textAlign: textAlign,
       style: TextStyle(
-          fontSize: fontSize ?? 18,
-          fontStyle: FontStyle.italic,
-          fontFamily: "raleway",
-          color: color),
+        fontSize: fontSize ?? 18,
+        fontStyle: FontStyle.italic,
+        fontFamily: "raleway",
+        color: color,
+      ),
     );
   }
 }
@@ -211,14 +220,15 @@ class AppTextHeavyBold extends StatelessWidget {
   final FontFamily? fontFamily;
   final Color? color;
   final int? lineLimit;
-  const AppTextHeavyBold(
-      {super.key,
-      required this.text,
-      this.fontSize,
-      this.textAlign,
-      this.fontFamily,
-      this.lineLimit = 4,
-      this.color});
+  const AppTextHeavyBold({
+    super.key,
+    required this.text,
+    this.fontSize,
+    this.textAlign,
+    this.fontFamily,
+    this.lineLimit = 4,
+    this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -227,10 +237,11 @@ class AppTextHeavyBold extends StatelessWidget {
       // maxLines: lineLimit!,
       textAlign: textAlign,
       style: TextStyle(
-          fontSize: fontSize ?? 18,
-          fontWeight: FontWeight.w700,
-          fontFamily: fontFamily?.name,
-          color: color),
+        fontSize: fontSize ?? 18,
+        fontWeight: FontWeight.w700,
+        fontFamily: fontFamily?.name,
+        color: color,
+      ),
     );
   }
 }

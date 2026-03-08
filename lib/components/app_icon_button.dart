@@ -29,7 +29,7 @@ class AppIconButton extends StatelessWidget {
         child: Icon(
           icon,
           size: size ?? 24,
-          color: iconColor ?? iconColor,
+          color: iconColor ?? Theme.of(context).iconTheme.color,
         ),
       ),
     );

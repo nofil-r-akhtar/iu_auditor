@@ -1,18 +1,18 @@
-final String image = "assets/images/";
-final String svg = "assets/svg/";
+const String image = "assets/images/";
+const String svg = "assets/svg/";
 
-final String logo = "${image}logo.png";
+const String logo = "${image}logo.png";
 
-final String user = "${svg}user.svg";
-final String lock = "${svg}lock.svg";
+const String user = "${svg}user.svg";
+const String lock = "${svg}lock.svg";
 
-final String homeAssets = "${svg}home/";
+const String homeAssets = "${svg}home/";
 
-final String dashboard = "${homeAssets}dashboard.svg";
-final String newFaculties = "${homeAssets}newFaculties.svg";
-final String seniorLecturers = "${homeAssets}seniorLecturers.svg";
-final String auditQuestions = "${homeAssets}auditQuestions.svg";
-final String auditReviews = "${homeAssets}auditReviews.svg";
-final String userManagement = "${homeAssets}userManagement.svg";
-final String signOut = "${homeAssets}signOut.svg";
-final String bell = "${homeAssets}bell.svg";
+const String dashboard = "${homeAssets}dashboard.svg";
+const String newFaculties = "${homeAssets}newFaculties.svg";
+const String seniorLecturers = "${homeAssets}seniorLecturers.svg";
+const String auditQuestions = "${homeAssets}auditQuestions.svg";
+const String auditReviews = "${homeAssets}auditReviews.svg";
+const String userManagement = "${homeAssets}userManagement.svg";
+const String signOut = "${homeAssets}signOut.svg";
+const String bell = "${homeAssets}bell.svg";

@@ -6,18 +6,21 @@ import 'package:iu_auditor/components/app_text.dart';
 import 'package:iu_auditor/const/assets.dart';
 import 'package:iu_auditor/const/enums.dart';
 
-AppBar appBar(BuildContext context,
-    {
-    required final String title,
-    }) {
+AppBar appBar(
+  BuildContext context, {
+  required final String title,
+  required final String name,
+  required final String role,
+}) {
   return AppBar(
     title: Padding(
-      padding: const EdgeInsetsGeometry.only(left: 10),
+      padding: const EdgeInsets.only(left: 10),
       child: AppTextBold(
         text: title,
         color: navyBlueColor,
         fontFamily: FontFamily.inter,
-        fontSize: 19),
+        fontSize: 19,
+      ),
     ),
     centerTitle: false,
     actions: [
@@ -25,16 +28,14 @@ AppBar appBar(BuildContext context,
         padding: const EdgeInsets.only(right: 25.0),
         child: Row(
           children: [
-            AppSvg(
-              assetPath: bell
-            ),
+            AppSvg(assetPath: bell),
             SizedBox(width: 30),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AppTextMedium(text: "Name", color: navyBlueColor),
+                AppTextMedium(text: name, color: navyBlueColor),
                 SizedBox(height: 5),
-                AppTextRegular(text: "Role", color: descriptiveColor),
+                AppTextRegular(text: role, color: descriptiveColor),
               ],
             ),
             SizedBox(width: 20),
@@ -43,12 +44,12 @@ AppBar appBar(BuildContext context,
               shape: BoxShape.circle,
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Center(
-                child: AppTextRegular(text: "N", color: whiteColor,),
+                child: AppTextRegular(text: "N", color: whiteColor),
               ),
-            )
+            ),
           ],
         ),
-      )
+      ),
     ],
     backgroundColor: whiteColor,
     automaticallyImplyLeading: false,

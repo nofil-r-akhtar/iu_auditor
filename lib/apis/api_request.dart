@@ -2,14 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:iu_auditor/apis/apis_end_points.dart';
 import 'package:iu_auditor/const/enums.dart';
-import 'package:iu_auditor/apis/connectivty.dart';
+import 'package:iu_auditor/apis/connectivity.dart';
 
 class ApiRequest {
   final CheckConnectivity _connectivity = CheckConnectivity();
 
-  static Map<String, String> headers = {
-    'Content-Type': 'application/json',
-  };
+  static Map<String, String> headers = {'Content-Type': 'application/json'};
 
   static void setAuthToken(String token) {
     headers['Authorization'] = 'Bearer $token';
@@ -28,9 +26,7 @@ class ApiRequest {
         throw Exception('No internet connection. Please check your network.');
       }
 
-      Map<String, String> defaultHeaders = {
-        'Content-Type': 'application/json',
-      };
+      Map<String, String> defaultHeaders = Map.from(ApiRequest.headers);
 
       if (headers != null) {
         defaultHeaders.addAll(headers);
@@ -41,8 +37,9 @@ class ApiRequest {
       switch (method) {
         case Request.get:
           Uri uri = params != null
-              ? Uri.parse(ApisEndPoints.startUrl + url)
-                  .replace(queryParameters: params)
+              ? Uri.parse(
+                  ApisEndPoints.startUrl + url,
+                ).replace(queryParameters: params)
               : Uri.parse(ApisEndPoints.startUrl + url);
           response = await http.get(uri, headers: defaultHeaders);
           break;
@@ -80,10 +77,14 @@ class ApiRequest {
         if (responseBody.containsKey('message')) {
           return {'error': responseBody['message']};
         } else {
-          throw Exception('Error: Invalid response format for status code 400.');
+          throw Exception(
+            'Error: Invalid response format for status code 400.',
+          );
         }
       } else {
-        throw Exception('Error: ${response.statusCode}, Response: ${response.body}');
+        throw Exception(
+          'Error: ${response.statusCode}, Response: ${response.body}',
+        );
       }
     } catch (e) {
       throw Exception('Error: $e');

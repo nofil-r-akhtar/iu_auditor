@@ -30,44 +30,44 @@ class AppTextField extends StatelessWidget {
   final bool isError;
   final String? errorText;
   const AppTextField({
-  this.prefixIcon,
-      this.suffixIcon,
-      this.placeholder,
-      this.backgroundColor = bgColor,
-      required this.textController,
-      this.isSecured = false,
-      this.fontSize = 16.0,
-      this.fontFamily =
-          FontFamily.inter, // replace with your actual font family
-      this.keyboardType = TextInputType.text,
-      this.submitLabel = TextInputAction.next,
-      this.onChanged,
-      this.onFieldSubmitted,
-      this.validator,
-      this.isTextFieldEnabled = true,
-      this.placeholderColor = primaryColor,
-      this.outlineBorder = InputBorder.none, 
-      // = const OutlineInputBorder(
-      //   borderSide: BorderSide(
-      //       color: primaryColor, width: 0.25, style: BorderStyle.none),
-      // ),
-      this.focusedBorder = InputBorder.none,
-      // = const OutlineInputBorder(
-      //   borderSide: BorderSide(color: primaryColor, width: 0.25),
-      // ),
-      this.enabledBorder = InputBorder.none,
-      //  = const OutlineInputBorder(
-      //   borderSide: BorderSide(
-      //       color: primaryColor, width: 0.1, style: BorderStyle.none),
-      // ),
-      this.obscureText = false,
-      this.textFieldPadding = 0,
-      this.minLine,
-      this.maxLine,
-      this.onTap,
-      this.isError = false,       // <-- new
-      this.errorText,
-      super.key});
+    this.prefixIcon,
+    this.suffixIcon,
+    this.placeholder,
+    this.backgroundColor = bgColor,
+    required this.textController,
+    this.isSecured = false,
+    this.fontSize = 16.0,
+    this.fontFamily = FontFamily.inter, // replace with your actual font family
+    this.keyboardType = TextInputType.text,
+    this.submitLabel = TextInputAction.next,
+    this.onChanged,
+    this.onFieldSubmitted,
+    this.validator,
+    this.isTextFieldEnabled = true,
+    this.placeholderColor = hintTextColor,
+    this.outlineBorder = InputBorder.none,
+    // = const OutlineInputBorder(
+    //   borderSide: BorderSide(
+    //       color: primaryColor, width: 0.25, style: BorderStyle.none),
+    // ),
+    this.focusedBorder = InputBorder.none,
+    // = const OutlineInputBorder(
+    //   borderSide: BorderSide(color: primaryColor, width: 0.25),
+    // ),
+    this.enabledBorder = InputBorder.none,
+    //  = const OutlineInputBorder(
+    //   borderSide: BorderSide(
+    //       color: primaryColor, width: 0.1, style: BorderStyle.none),
+    // ),
+    this.obscureText = false,
+    this.textFieldPadding = 0,
+    this.minLine,
+    this.maxLine,
+    this.onTap,
+    this.isError = false, // <-- new
+    this.errorText,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -84,8 +84,8 @@ class AppTextField extends StatelessWidget {
       children: [
         AppContainer(
           bgColor: isError
-                  ? Colors.red.withValues(alpha: 0.06)   // subtle red tint on error
-                  : backgroundColor,
+              ? Colors.red.withValues(alpha: 0.06) // subtle red tint on error
+              : backgroundColor,
           padding: EdgeInsets.symmetric(horizontal: 8),
           borderRadius: BorderRadius.circular(12),
           alignment: Alignment.topCenter,
@@ -99,17 +99,18 @@ class AppTextField extends StatelessWidget {
             enabled: isTextFieldEnabled,
             obscureText: obscureText,
             style: TextStyle(
-                fontSize: fontSize,
-                height: 1.5,
-                fontFamily: fontFamily.toString(),
-                fontWeight: FontWeight.w400,
-                color: primaryColor),
+              fontSize: fontSize,
+              height: 1.5,
+              fontFamily: fontFamily.toString(),
+              fontWeight: FontWeight.w400,
+              color: primaryColor,
+            ),
             cursorColor: placeholderColor,
             onChanged: onChanged,
             onTapOutside: (event) => FocusScope.of(context).unfocus(),
             onFieldSubmitted: onFieldSubmitted,
             decoration: InputDecoration(
-               border: isError ? errorBorder : normalBorder,
+              border: isError ? errorBorder : normalBorder,
               focusedBorder: isError ? errorBorder : normalBorder,
               enabledBorder: isError ? errorBorder : normalBorder,
               errorBorder: errorBorder,
@@ -123,7 +124,7 @@ class AppTextField extends StatelessWidget {
               suffixIcon: suffixIcon,
               errorStyle: const TextStyle(height: 0, fontSize: 0),
             ),
-            validator: validator ?? (_) => 'TextField is not Empty',
+            validator: validator ?? (_) => null,
             textAlignVertical: TextAlignVertical.center,
           ),
         ),
@@ -140,6 +141,6 @@ class AppTextField extends StatelessWidget {
             ),
           ),
       ],
-    ); 
+    );
   }
 }
