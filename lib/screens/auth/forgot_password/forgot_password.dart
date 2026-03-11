@@ -14,36 +14,39 @@ class ForgotPassword extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Delete any stale instance before creating a fresh one,
+    // same pattern as OtpView — prevents conflict on back + re-entry.
+    Get.delete<ForgotPasswordController>(force: true);
     final ForgotPasswordController controller = Get.put(
       ForgotPasswordController(),
     );
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back),
         ),
       ),
       body: SafeArea(
         child: Center(
           child: AuthBox(
-            onPress: () => controller.forgotPassword(),
             isFrom: AuthScreen.forgotPassword,
             headerTxt: "Forgot Your Password?",
             descriptionTxt:
-                "Enter your registered email address and we’ll send you a link to reset your password.",
+                "Enter your registered email address and we'll send you a link to reset your password.",
+            onPress: () => controller.forgotPassword(),
+            // FIX: pass isLoading so the button disables during the API call
+            isLoading: controller.isLoading,
             components: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 10),
-                AppTextSemiBold(text: "Email"),
+                const AppTextSemiBold(text: "Email"),
                 const SizedBox(height: 3),
                 Obx(
                   () => AppTextField(
-                    // <-- Obx for error reactivity
                     textController: controller.emailController,
                     prefixIcon: AppSvg(
                       assetPath: user,

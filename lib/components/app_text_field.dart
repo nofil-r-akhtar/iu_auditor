@@ -19,7 +19,6 @@ class AppTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool? isTextFieldEnabled;
   final Color? placeholderColor;
-  final InputBorder? outlineBorder;
   final InputBorder? focusedBorder;
   final InputBorder? enabledBorder;
   final bool obscureText;
@@ -29,6 +28,7 @@ class AppTextField extends StatelessWidget {
   final Function()? onTap;
   final bool isError;
   final String? errorText;
+
   const AppTextField({
     this.prefixIcon,
     this.suffixIcon,
@@ -37,7 +37,7 @@ class AppTextField extends StatelessWidget {
     required this.textController,
     this.isSecured = false,
     this.fontSize = 16.0,
-    this.fontFamily = FontFamily.inter, // replace with your actual font family
+    this.fontFamily = FontFamily.inter,
     this.keyboardType = TextInputType.text,
     this.submitLabel = TextInputAction.next,
     this.onChanged,
@@ -45,48 +45,49 @@ class AppTextField extends StatelessWidget {
     this.validator,
     this.isTextFieldEnabled = true,
     this.placeholderColor = hintTextColor,
-    this.outlineBorder = InputBorder.none,
-    // = const OutlineInputBorder(
-    //   borderSide: BorderSide(
-    //       color: primaryColor, width: 0.25, style: BorderStyle.none),
-    // ),
-    this.focusedBorder = InputBorder.none,
-    // = const OutlineInputBorder(
-    //   borderSide: BorderSide(color: primaryColor, width: 0.25),
-    // ),
-    this.enabledBorder = InputBorder.none,
-    //  = const OutlineInputBorder(
-    //   borderSide: BorderSide(
-    //       color: primaryColor, width: 0.1, style: BorderStyle.none),
-    // ),
+    this.focusedBorder,
+    this.enabledBorder,
     this.obscureText = false,
     this.textFieldPadding = 0,
     this.minLine,
     this.maxLine,
     this.onTap,
-    this.isError = false, // <-- new
+    this.isError = false,
     this.errorText,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Error border — always used when isError is true
     final errorBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: const BorderSide(color: Colors.red, width: 1.2),
     );
-    final normalBorder = OutlineInputBorder(
+
+    // Default normal border — used as fallback when caller passes nothing
+    final defaultBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide.none,
     );
+
+    // FIX: caller-supplied borders are now actually used.
+    // When isError is true, the error border always wins regardless.
+    final resolvedFocusedBorder = isError
+        ? errorBorder
+        : (focusedBorder ?? defaultBorder);
+    final resolvedEnabledBorder = isError
+        ? errorBorder
+        : (enabledBorder ?? defaultBorder);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppContainer(
           bgColor: isError
-              ? Colors.red.withValues(alpha: 0.06) // subtle red tint on error
+              ? Colors.red.withValues(alpha: 0.06)
               : backgroundColor,
-          padding: EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           borderRadius: BorderRadius.circular(12),
           alignment: Alignment.topCenter,
           child: TextFormField(
@@ -101,7 +102,9 @@ class AppTextField extends StatelessWidget {
             style: TextStyle(
               fontSize: fontSize,
               height: 1.5,
-              fontFamily: fontFamily.toString(),
+              // FIX: was fontFamily.toString() which produced "FontFamily.inter"
+              // instead of "inter", causing the font to silently not load.
+              fontFamily: fontFamily?.name,
               fontWeight: FontWeight.w400,
               color: primaryColor,
             ),
@@ -110,18 +113,16 @@ class AppTextField extends StatelessWidget {
             onTapOutside: (event) => FocusScope.of(context).unfocus(),
             onFieldSubmitted: onFieldSubmitted,
             decoration: InputDecoration(
-              border: isError ? errorBorder : normalBorder,
-              focusedBorder: isError ? errorBorder : normalBorder,
-              enabledBorder: isError ? errorBorder : normalBorder,
+              border: resolvedEnabledBorder,
+              focusedBorder: resolvedFocusedBorder,
+              enabledBorder: resolvedEnabledBorder,
               errorBorder: errorBorder,
               focusedErrorBorder: errorBorder,
-              // labelText: placeholder,
-              // labelStyle: TextStyle(fontSize: 14, color: placeholderColor, fontWeight: FontWeight.w400, fontFamily: fontFamily.toString()),
-              // hintStyle: TextStyle(color: placeholderColor),
               hintText: placeholder,
               hintStyle: TextStyle(color: placeholderColor),
               prefixIcon: prefixIcon,
               suffixIcon: suffixIcon,
+              // Hides the default Flutter error text — we render our own below
               errorStyle: const TextStyle(height: 0, fontSize: 0),
             ),
             validator: validator ?? (_) => null,

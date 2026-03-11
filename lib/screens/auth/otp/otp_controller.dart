@@ -1,21 +1,21 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iu_auditor/apis/auth/auth_api.dart';
+import 'package:iu_auditor/apis/auth/i_auth_service.dart';
 import 'package:iu_auditor/screens/auth/reset_password/reset_password.dart';
 
 class OtpController extends GetxController {
-  final Auth authapi = Auth();
+  final IAuthService _authService = Get.find<IAuthService>();
+
   final otpController = TextEditingController();
 
   var isLoading = false.obs;
   var isResendLoading = false.obs;
   var otpError = ''.obs;
 
-  // Timer
-  var secondsRemaining = 15.obs; // starts at 15
+  var secondsRemaining = 15.obs;
   var isResendEnabled = false.obs;
-  var resendCount = 0; // tracks how many times resend was tapped
+  var resendCount = 0;
   Timer? _timer;
 
   final String email;
@@ -24,7 +24,7 @@ class OtpController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _startTimer(15); // start 15s countdown on screen open
+    _startTimer(15);
   }
 
   void _startTimer(int seconds) {
@@ -43,7 +43,7 @@ class OtpController extends GetxController {
 
   bool validateOtp() {
     if (otpController.text.trim().length < 4) {
-      otpError.value = "Please enter the complete OTP";
+      otpError.value = 'Please enter the complete OTP';
       return false;
     }
     otpError.value = '';
@@ -56,21 +56,22 @@ class OtpController extends GetxController {
     try {
       isLoading.value = true;
 
-      final response = await authapi.verifyOtp(
+      final response = await _authService.verifyOtp(
         email: email,
         otp: otpController.text.trim(),
       );
 
-      if (response['success'].toString() == 'false') {
-        otpError.value = response['message'] ?? "Invalid OTP";
+      if (response['success'] == false || response['success'] == 'false') {
+        otpError.value = response['message'] ?? 'Invalid OTP';
         return;
       }
 
-      // Success — go to reset password, pass email along
-      Get.off(() => ResetPassword(email: email, otp: otpController.text));
+      Get.off(
+        () => ResetPassword(email: email, otp: otpController.text.trim()),
+      );
     } catch (e) {
       debugPrint('Verify OTP error: $e');
-      Get.snackbar("Error", e.toString());
+      Get.snackbar('Error', e.toString());
     } finally {
       isLoading.value = false;
     }
@@ -82,21 +83,20 @@ class OtpController extends GetxController {
     try {
       isResendLoading.value = true;
 
-      final response = await authapi.resendOtp(email: email);
+      final response = await _authService.resendOtp(email: email);
 
-      if (response['success'].toString() == 'false') {
-        Get.snackbar("Error", response['message'] ?? "Failed to resend OTP");
+      if (response['success'] == false || response['success'] == 'false') {
+        Get.snackbar('Error', response['message'] ?? 'Failed to resend OTP');
         return;
       }
 
       resendCount++;
-      // 15s first time, 30s every time after
       _startTimer(resendCount == 1 ? 15 : 30);
       otpController.clear();
-      Get.snackbar("Success", "OTP resent successfully");
+      Get.snackbar('Success', 'OTP resent successfully');
     } catch (e) {
       debugPrint('Resend OTP error: $e');
-      Get.snackbar("Error", e.toString());
+      Get.snackbar('Error', e.toString());
     } finally {
       isResendLoading.value = false;
     }

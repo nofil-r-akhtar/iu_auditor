@@ -8,6 +8,7 @@ class AppTextThin extends StatelessWidget {
   final FontFamily? fontFamily;
   final Color? color;
   final int? lineLimit;
+
   const AppTextThin({
     super.key,
     required this.text,
@@ -22,12 +23,14 @@ class AppTextThin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      //// maxLines: lineLimit!,
+      maxLines: lineLimit,
       textAlign: textAlign,
-      softWrap: true,
+      // FIX: softWrap: true and overflow: ellipsis conflict with each other.
+      // overflow belongs inside TextStyle only when maxLines is set;
+      // here we let Flutter wrap naturally unless lineLimit is provided.
+      overflow: lineLimit != null ? TextOverflow.ellipsis : null,
       style: TextStyle(
         fontSize: fontSize ?? 14,
-        overflow: TextOverflow.ellipsis,
         fontWeight: FontWeight.w200,
         fontFamily: fontFamily?.name,
         color: color,
@@ -43,13 +46,14 @@ class AppTextRegular extends StatelessWidget {
   final FontFamily? fontFamily;
   final Color? color;
   final int? lineLimit;
+
   const AppTextRegular({
     super.key,
     required this.text,
     this.fontSize,
     this.textAlign,
     this.fontFamily,
-    this.lineLimit = 4,
+    this.lineLimit,
     this.color,
   });
 
@@ -57,12 +61,10 @@ class AppTextRegular extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      //maxLines: lineLimit!,
-      // overflow: TextOverflow.ellipsis,
+      maxLines: lineLimit,
+      overflow: lineLimit != null ? TextOverflow.ellipsis : null,
       textAlign: textAlign,
-      // softWrap: true,
       style: TextStyle(
-        // overflow: TextOverflow.ellipsis,
         fontSize: fontSize ?? 14,
         fontWeight: FontWeight.w300,
         fontFamily: fontFamily?.name,
@@ -79,6 +81,7 @@ class AppTextMedium extends StatelessWidget {
   final FontFamily? fontFamily;
   final Color? color;
   final int? lineLimit;
+
   const AppTextMedium({
     super.key,
     required this.text,
@@ -93,7 +96,8 @@ class AppTextMedium extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      ////// maxLines: lineLimit!,
+      maxLines: lineLimit,
+      overflow: lineLimit != null ? TextOverflow.ellipsis : null,
       textAlign: textAlign,
       style: TextStyle(
         fontSize: fontSize ?? 16,
@@ -113,6 +117,7 @@ class AppTextSemiBold extends StatelessWidget {
   final Color? color;
   final int? lineLimit;
   final double? h;
+
   const AppTextSemiBold({
     super.key,
     required this.text,
@@ -120,7 +125,7 @@ class AppTextSemiBold extends StatelessWidget {
     this.fontSize,
     this.textAlign,
     this.fontFamily,
-    this.lineLimit = 4,
+    this.lineLimit,
     this.color,
   });
 
@@ -128,14 +133,14 @@ class AppTextSemiBold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      // maxLines: lineLimit!,
+      maxLines: lineLimit,
+      overflow: lineLimit != null ? TextOverflow.ellipsis : null,
       textAlign: textAlign,
       style: TextStyle(
         height: h,
         fontSize: fontSize ?? 16,
         fontWeight: FontWeight.w500,
         fontFamily: fontFamily?.name,
-
         color: color,
       ),
     );
@@ -157,7 +162,7 @@ class AppTextBold extends StatelessWidget {
     this.fontSize,
     this.textAlign,
     this.fontFamily,
-    this.lineLimit = 4,
+    this.lineLimit,
     this.color,
     this.textDecoration = TextDecoration.none,
   });
@@ -167,7 +172,10 @@ class AppTextBold extends StatelessWidget {
     return Text(
       text,
       textAlign: textAlign,
-      maxLines: lineLimit!,
+      // FIX: was lineLimit! — crashes if caller explicitly passes lineLimit: null.
+      // Now safely uses the value only when provided.
+      maxLines: lineLimit,
+      overflow: lineLimit != null ? TextOverflow.ellipsis : null,
       style: TextStyle(
         height: 1,
         decoration: textDecoration,
@@ -187,6 +195,7 @@ class AppTextItalic extends StatelessWidget {
   final TextAlign? textAlign;
   final Color? color;
   final int? lineLimit;
+
   const AppTextItalic({
     super.key,
     required this.text,
@@ -201,12 +210,13 @@ class AppTextItalic extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      ////// maxLines: lineLimit!,
+      maxLines: lineLimit,
+      overflow: lineLimit != null ? TextOverflow.ellipsis : null,
       textAlign: textAlign,
       style: TextStyle(
         fontSize: fontSize ?? 18,
         fontStyle: FontStyle.italic,
-        fontFamily: "raleway",
+        fontFamily: fontFamily?.name ?? 'raleway',
         color: color,
       ),
     );
@@ -220,13 +230,14 @@ class AppTextHeavyBold extends StatelessWidget {
   final FontFamily? fontFamily;
   final Color? color;
   final int? lineLimit;
+
   const AppTextHeavyBold({
     super.key,
     required this.text,
     this.fontSize,
     this.textAlign,
     this.fontFamily,
-    this.lineLimit = 4,
+    this.lineLimit,
     this.color,
   });
 
@@ -234,7 +245,8 @@ class AppTextHeavyBold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      // maxLines: lineLimit!,
+      maxLines: lineLimit,
+      overflow: lineLimit != null ? TextOverflow.ellipsis : null,
       textAlign: textAlign,
       style: TextStyle(
         fontSize: fontSize ?? 18,

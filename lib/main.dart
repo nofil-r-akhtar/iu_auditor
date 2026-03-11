@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iu_auditor/app_theme/theme.dart';
+import 'package:iu_auditor/core/service_locator.dart';
 import 'package:iu_auditor/screens/auth/login/login.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
 void main() {
+  // ── Register all services (mock or real, based on ApiConfig.useMock) ──
+  ServiceLocator.init();
+
   runApp(const MyApp());
 }
 
@@ -17,7 +19,6 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'IU Auditor',
       debugShowCheckedModeBanner: false,
-      navigatorKey: navigatorKey,
       theme: AppTheme.lightTheme(),
       home: const Login(),
     );

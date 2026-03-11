@@ -13,6 +13,12 @@ class ApiRequest {
     headers['Authorization'] = 'Bearer $token';
   }
 
+  // FIX: token was never removed on logout, meaning a second user logging in
+  // on the same session could briefly send the previous user's token.
+  static void clearAuthToken() {
+    headers.remove('Authorization');
+  }
+
   Future<Map<String, dynamic>> makeRequest({
     required String url,
     required Request method,
@@ -68,7 +74,6 @@ class ApiRequest {
           break;
       }
 
-      // ── Directly decode JSON, no isolate needed ──
       final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode == 200 || response.statusCode == 201) {

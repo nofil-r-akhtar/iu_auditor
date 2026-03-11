@@ -19,7 +19,7 @@ class ResetPassword extends StatelessWidget {
   Widget build(BuildContext context) {
     final ResetPasswordController controller = Get.put(
       ResetPasswordController(email: email, otp: otp),
-    ); // <-- pass otp
+    );
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -36,7 +36,9 @@ class ResetPassword extends StatelessWidget {
             descriptionTxt:
                 "Please enter your new password and confirm it to continue.",
             isFrom: AuthScreen.resetPassword,
-            onPress: () => controller.resetPassword(), // <-- hook up button
+            onPress: () => controller.resetPassword(),
+            // FIX: pass isLoading so button disables during API call
+            isLoading: controller.isLoading,
             components: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

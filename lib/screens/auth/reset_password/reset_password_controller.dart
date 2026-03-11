@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iu_auditor/apis/auth/auth_api.dart';
+import 'package:iu_auditor/apis/auth/i_auth_service.dart';
 import 'package:iu_auditor/screens/auth/login/login.dart';
 
 class ResetPasswordController extends GetxController {
-  final Auth authapi = Auth();
+  final IAuthService _authService = Get.find<IAuthService>();
+
   final newPasswordController = TextEditingController();
   final confirmNewPasswordController = TextEditingController();
 
@@ -15,7 +16,6 @@ class ResetPasswordController extends GetxController {
   var newPasswordError = ''.obs;
   var confirmPasswordError = ''.obs;
 
-  // email and otp passed from OtpView
   final String email;
   final String otp;
   ResetPasswordController({required this.email, required this.otp});
@@ -27,20 +27,20 @@ class ResetPasswordController extends GetxController {
     final confirmPassword = confirmNewPasswordController.text.trim();
 
     if (newPassword.isEmpty) {
-      newPasswordError.value = "New password is required";
+      newPasswordError.value = 'New password is required';
       isValid = false;
     } else if (newPassword.length < 6) {
-      newPasswordError.value = "Password must be at least 6 characters";
+      newPasswordError.value = 'Password must be at least 6 characters';
       isValid = false;
     } else {
       newPasswordError.value = '';
     }
 
     if (confirmPassword.isEmpty) {
-      confirmPasswordError.value = "Please confirm your password";
+      confirmPasswordError.value = 'Please confirm your password';
       isValid = false;
     } else if (confirmPassword != newPassword) {
-      confirmPasswordError.value = "Passwords do not match";
+      confirmPasswordError.value = 'Passwords do not match';
       isValid = false;
     } else {
       confirmPasswordError.value = '';
@@ -55,26 +55,25 @@ class ResetPasswordController extends GetxController {
     try {
       isLoading.value = true;
 
-      final response = await authapi.resetPassword(
+      final response = await _authService.resetPassword(
         email: email,
         otp: otp,
         newPassword: newPasswordController.text.trim(),
       );
 
-      if (response['success'].toString() == 'false') {
+      if (response['success'] == false || response['success'] == 'false') {
         Get.snackbar(
-          "Error",
-          response['message'] ?? "Failed to reset password",
+          'Error',
+          response['message'] ?? 'Failed to reset password',
         );
         return;
       }
 
-      // Success — go back to login and clear stack
-      Get.snackbar("Success", "Password reset successfully");
+      Get.snackbar('Success', 'Password reset successfully');
       Get.offAll(() => const Login());
     } catch (e) {
       debugPrint('Reset password error: $e');
-      Get.snackbar("Error", e.toString());
+      Get.snackbar('Error', e.toString());
     } finally {
       isLoading.value = false;
     }

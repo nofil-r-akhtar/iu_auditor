@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iu_auditor/apis/auth/auth_api.dart';
+import 'package:iu_auditor/apis/auth/i_auth_service.dart';
 import 'package:iu_auditor/screens/auth/otp/otp_view.dart';
 
 class ForgotPasswordController extends GetxController {
-  final Auth authapi = Auth();
+  final IAuthService _authService = Get.find<IAuthService>();
+
   final emailController = TextEditingController();
 
   var isLoading = false.obs;
@@ -14,10 +15,10 @@ class ForgotPasswordController extends GetxController {
     final email = emailController.text.trim();
 
     if (email.isEmpty) {
-      emailError.value = "Email is required";
+      emailError.value = 'Email is required';
       return false;
     } else if (!GetUtils.isEmail(email)) {
-      emailError.value = "Enter a valid email";
+      emailError.value = 'Enter a valid email';
       return false;
     }
 
@@ -31,20 +32,19 @@ class ForgotPasswordController extends GetxController {
     try {
       isLoading.value = true;
 
-      final response = await authapi.forgetPassword(
+      final response = await _authService.forgotPassword(
         email: emailController.text.trim(),
       );
 
-      if (response['success'].toString() == 'false') {
-        Get.snackbar("Error", response['message'] ?? "Something went wrong");
+      if (response['success'] == false || response['success'] == 'false') {
+        Get.snackbar('Error', response['message'] ?? 'Something went wrong');
         return;
       }
 
-      // Success — navigate to OTP screen passing email along
-      Get.to(() => OtpView(email: emailController.text));
+      Get.to(() => OtpView(email: emailController.text.trim()));
     } catch (e) {
       debugPrint('Forgot password error: $e');
-      Get.snackbar("Error", e.toString());
+      Get.snackbar('Error', e.toString());
     } finally {
       isLoading.value = false;
     }

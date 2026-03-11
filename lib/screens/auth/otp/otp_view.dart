@@ -11,9 +11,12 @@ class OtpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final OtpController controller = Get.put(
-      OtpController(email: email),
-    ); // pass email to controller
+    // FIX: Without deleting first, navigating back then forward to this screen
+    // again calls Get.put on an already-registered type, which GetX rejects
+    // with a conflict error. Deleting the stale instance first ensures a clean
+    // controller with a fresh timer on every entry.
+    Get.delete<OtpController>(force: true);
+    final OtpController controller = Get.put(OtpController(email: email));
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -31,9 +34,10 @@ class OtpView extends StatelessWidget {
             descriptionTxt:
                 "Please enter the verification code sent to your registered email to continue.",
             onPress: () => controller.verifyOtp(),
-            onResend: () => controller.resendOtp(), // <-- resend callback
-            resendEnabled: controller.isResendEnabled, // <-- reactive bool
-            secondsRemaining: controller.secondsRemaining, // <-- countdown
+            onResend: () => controller.resendOtp(),
+            resendEnabled: controller.isResendEnabled,
+            secondsRemaining: controller.secondsRemaining,
+            isLoading: controller.isLoading,
             components: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

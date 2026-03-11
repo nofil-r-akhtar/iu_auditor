@@ -9,49 +9,70 @@ import 'package:iu_auditor/components/home_components/screen_table/screen_table.
 import 'package:iu_auditor/components/home_components/side_bar_item.dart';
 import 'package:iu_auditor/const/assets.dart';
 import 'package:iu_auditor/const/enums.dart';
+import 'package:iu_auditor/core/app_responsive.dart';
 import 'package:iu_auditor/modal_class/table/table_model.dart';
-import 'package:iu_auditor/screens/home/home_Screen_controller.dart';
+import 'package:iu_auditor/screens/home/home_controller.dart';
+import 'package:iu_auditor/screens/home/audits/audits_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  // Static key so the drawer can be opened from the top bar
+  static final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     final HomeController controller = Get.put(HomeController());
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      body: Row(
-        children: [
-          _SideBar(controller: controller),
-          Expanded(
-            child: Column(
-              children: [
-                _TopBar(controller: controller),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(28),
-                    // Single top-level Obx to switch between tabs
-                    child: GetBuilder<HomeController>(
-                      builder: (ctrl) {
-                        if (ctrl.selectedIndex == 0) {
-                          return _DashboardBody(controller: ctrl);
-                        }
-                        return Center(
-                          child: AppTextMedium(
-                            text: "Coming Soon",
-                            color: descriptiveColor,
-                          ),
-                        );
-                      },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final r = AppResponsive(constraints.maxWidth);
+
+        return Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: bgColor,
+          // On mobile the sidebar lives in a drawer
+          drawer: r.isMobile ? _SideBar(controller: controller) : null,
+          body: Row(
+            children: [
+              // Persistent sidebar on tablet + desktop
+              if (!r.isMobile) _SideBar(controller: controller),
+              Expanded(
+                child: Column(
+                  children: [
+                    _TopBar(controller: controller, responsive: r),
+                    Expanded(
+                      child: GetBuilder<HomeController>(
+                        builder: (ctrl) {
+                          if (ctrl.selectedIndex == 0) {
+                            return SingleChildScrollView(
+                              padding: const EdgeInsets.all(28),
+                              child: _DashboardBody(
+                                controller: ctrl,
+                                responsive: r,
+                              ),
+                            );
+                          }
+                          if (ctrl.selectedIndex == 1) {
+                            return const AuditsScreen();
+                          }
+                          return Center(
+                            child: AppTextMedium(
+                              text: "Coming Soon",
+                              color: descriptiveColor,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -85,101 +106,109 @@ class _SideBar extends StatelessWidget {
     return AppContainer(
       width: 220,
       bgColor: navyBlueColor,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // App brand header
-          AppContainer(
-            bgColor: const Color(0xFF162032),
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 48, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppContainer(
-                  bgColor: primaryColor,
-                  borderRadius: BorderRadius.circular(10),
-                  padding: const EdgeInsets.all(8),
-                  child: AppSvg(
-                    assetPath: dashboard,
-                    color: whiteColor,
-                    height: 20,
-                    width: 20,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                AppTextBold(
-                  text: "IU Auditor",
-                  color: whiteColor,
-                  fontSize: 16,
-                  fontFamily: FontFamily.inter,
-                ),
-                AppTextRegular(
-                  text: "Admin Portal",
-                  color: whiteColor.withValues(alpha: 0.45),
-                  fontSize: 11,
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          // Nav label
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-            child: AppTextRegular(
-              text: "MENU",
-              color: whiteColor.withValues(alpha: 0.3),
-              fontSize: 10,
-            ),
-          ),
-
-          // Nav items
-          Expanded(
-            child: GetBuilder<HomeController>(
-              builder: (ctrl) => Column(
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Brand header
+            AppContainer(
+              bgColor: const Color(0xFF162032),
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 28, 20, 20),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: _items.map((item) {
-                  final isSelected = ctrl.selectedIndex == item.index;
-                  return GestureDetector(
-                    onTap: () => ctrl.selectTab(item.index),
-                    child: AppContainer(
-                      width: double.infinity,
-                      bgColor: isSelected ? primaryColor : Colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 3,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 13,
-                      ),
-                      child: SideBarItem(
-                        icon: item.icon,
-                        name: item.name,
-                        isSelected: isSelected,
-                      ),
+                children: [
+                  AppContainer(
+                    bgColor: primaryColor,
+                    borderRadius: BorderRadius.circular(10),
+                    padding: const EdgeInsets.all(8),
+                    child: AppSvg(
+                      assetPath: dashboard,
+                      color: whiteColor,
+                      height: 20,
+                      width: 20,
                     ),
-                  );
-                }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  AppTextBold(
+                    text: "IU Auditor",
+                    color: whiteColor,
+                    fontSize: 16,
+                    fontFamily: FontFamily.inter,
+                  ),
+                  AppTextRegular(
+                    text: "Admin Portal",
+                    color: whiteColor.withValues(alpha: 0.45),
+                    fontSize: 11,
+                  ),
+                ],
               ),
             ),
-          ),
 
-          const Divider(color: Colors.white12, height: 1),
+            const SizedBox(height: 12),
 
-          // Sign Out
-          GestureDetector(
-            onTap: () => controller.signOut(),
-            child: AppContainer(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
-              child: SideBarItem(icon: signOut, name: 'Sign Out'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              child: AppTextRegular(
+                text: "MENU",
+                color: whiteColor.withValues(alpha: 0.3),
+                fontSize: 10,
+              ),
             ),
-          ),
-        ],
+
+            Expanded(
+              child: GetBuilder<HomeController>(
+                builder: (ctrl) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _items.map((item) {
+                    final isSelected = ctrl.selectedIndex == item.index;
+                    return GestureDetector(
+                      onTap: () {
+                        ctrl.selectTab(item.index);
+                        // Close drawer on mobile after selecting a tab
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: AppContainer(
+                        width: double.infinity,
+                        bgColor: isSelected ? primaryColor : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 3,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 13,
+                        ),
+                        child: SideBarItem(
+                          icon: item.icon,
+                          name: item.name,
+                          isSelected: isSelected,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+
+            const Divider(color: Colors.white12, height: 1),
+
+            GestureDetector(
+              onTap: () => controller.signOut(),
+              child: AppContainer(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 26,
+                  vertical: 20,
+                ),
+                child: SideBarItem(icon: signOut, name: 'Sign Out'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -190,58 +219,68 @@ class _SideBar extends StatelessWidget {
 // ─────────────────────────────────────────
 class _TopBar extends StatelessWidget {
   final HomeController controller;
-  const _TopBar({required this.controller});
+  final AppResponsive responsive;
+  const _TopBar({required this.controller, required this.responsive});
 
-  static const List<String> _titles = [
-    'Dashboard',
-    'New Faculties',
-    'Senior Lecturers',
-    'Audit Questions',
-    'Audit Reviews',
-    'User Management',
-  ];
+  static const List<String> _titles = ['Home', 'Audits', 'Profile'];
 
   @override
   Widget build(BuildContext context) {
-    // Single GetBuilder covers all top bar reactive fields
     return GetBuilder<HomeController>(
       builder: (ctrl) => AppContainer(
         bgColor: whiteColor,
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
           children: [
+            // Hamburger on mobile
+            if (responsive.isMobile)
+              GestureDetector(
+                onTap: () => HomeScreen._scaffoldKey.currentState?.openDrawer(),
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: Icon(Icons.menu_rounded, color: navyBlueColor),
+                ),
+              ),
+
             AppTextBold(
               text: ctrl.selectedIndex < _titles.length
                   ? _titles[ctrl.selectedIndex]
-                  : 'Dashboard',
+                  : 'Home',
               color: navyBlueColor,
-              fontSize: 20,
+              fontSize: responsive.isMobile ? 16 : 20,
               fontFamily: FontFamily.inter,
             ),
+
             const Spacer(),
+
             AppSvg(assetPath: bell, height: 22, width: 22),
-            const SizedBox(width: 24),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppTextMedium(
-                  text: ctrl.userName,
-                  color: navyBlueColor,
-                  fontSize: 14,
-                ),
-                AppTextRegular(
-                  text: ctrl.userRole,
-                  color: descriptiveColor,
-                  fontSize: 12,
-                ),
-              ],
-            ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
+
+            // Hide name/role on mobile — too cramped
+            if (!responsive.isMobile) ...[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppTextMedium(
+                    text: ctrl.userName,
+                    color: navyBlueColor,
+                    fontSize: 14,
+                  ),
+                  AppTextRegular(
+                    text: ctrl.userRole,
+                    color: descriptiveColor,
+                    fontSize: 12,
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12),
+            ],
+
             AppContainer(
               bgColor: navyBlueColor,
               shape: BoxShape.circle,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
               child: AppTextRegular(
                 text: ctrl.userInitial,
                 color: whiteColor,
@@ -260,32 +299,48 @@ class _TopBar extends StatelessWidget {
 // ─────────────────────────────────────────
 class _DashboardBody extends StatelessWidget {
   final HomeController controller;
-  const _DashboardBody({required this.controller});
+  final AppResponsive responsive;
+  const _DashboardBody({required this.controller, required this.responsive});
 
   @override
   Widget build(BuildContext context) {
+    // On desktop: side-by-side rows
+    // On tablet/mobile: everything stacks vertically
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _GreetingBanner(controller: controller),
         const SizedBox(height: 24),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(flex: 3, child: _StatsRow(controller: controller)),
-            const SizedBox(width: 20),
-            const Expanded(flex: 2, child: _StartAuditBanner()),
-          ],
-        ),
-        const SizedBox(height: 28),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(flex: 3, child: _UpcomingAudits(controller: controller)),
-            const SizedBox(width: 20),
-            Expanded(flex: 2, child: _RecentActivity(controller: controller)),
-          ],
-        ),
+
+        if (responsive.isDesktop) ...[
+          // Desktop: stats (flex 3) + quick actions (flex 2) side by side
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 3, child: _StatsRow(controller: controller)),
+              const SizedBox(width: 20),
+              const Expanded(flex: 2, child: _StartAuditBanner()),
+            ],
+          ),
+          const SizedBox(height: 28),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(flex: 3, child: _UpcomingAudits(controller: controller)),
+              const SizedBox(width: 20),
+              Expanded(flex: 2, child: _RecentActivity(controller: controller)),
+            ],
+          ),
+        ] else ...[
+          // Tablet / Mobile: everything stacked
+          _StatsRow(controller: controller),
+          const SizedBox(height: 20),
+          const _StartAuditBanner(),
+          const SizedBox(height: 20),
+          _UpcomingAudits(controller: controller),
+          const SizedBox(height: 20),
+          _RecentActivity(controller: controller),
+        ],
       ],
     );
   }
@@ -300,7 +355,6 @@ class _GreetingBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // No Obx needed — greeting data is static after login
     return AppContainer(
       bgColor: primaryColor,
       borderRadius: BorderRadius.circular(16),
@@ -353,40 +407,77 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // GetBuilder rebuilds this row when stats change
     return GetBuilder<HomeController>(
-      builder: (ctrl) => Row(
-        children: [
-          Expanded(
-            child: _StatCard(
-              label: 'Pending',
-              count: ctrl.pendingCount,
-              icon: Icons.hourglass_empty_rounded,
-              iconColor: const Color(0xFFF59E0B),
-              iconBg: const Color(0xFFFEF3C7),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: _StatCard(
-              label: 'In Progress',
-              count: ctrl.inProgressCount,
-              icon: Icons.edit_note_rounded,
-              iconColor: primaryColor,
-              iconBg: const Color(0xFFDBEAFE),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: _StatCard(
-              label: 'Completed',
-              count: ctrl.completedCount,
-              icon: Icons.check_circle_outline_rounded,
-              iconColor: const Color(0xFF10B981),
-              iconBg: const Color(0xFFD1FAE5),
-            ),
-          ),
-        ],
+      builder: (ctrl) => LayoutBuilder(
+        builder: (context, constraints) {
+          final r = AppResponsive(constraints.maxWidth);
+
+          // On very narrow widths wrap cards in a column instead of a row
+          // so they never overflow
+          if (r.isMobile) {
+            return Column(
+              children: [
+                _StatCard(
+                  label: 'Pending',
+                  count: ctrl.pendingCount,
+                  icon: Icons.hourglass_empty_rounded,
+                  iconColor: const Color(0xFFF59E0B),
+                  iconBg: const Color(0xFFFEF3C7),
+                ),
+                const SizedBox(height: 12),
+                _StatCard(
+                  label: 'In Progress',
+                  count: ctrl.inProgressCount,
+                  icon: Icons.edit_note_rounded,
+                  iconColor: primaryColor,
+                  iconBg: const Color(0xFFDBEAFE),
+                ),
+                const SizedBox(height: 12),
+                _StatCard(
+                  label: 'Completed',
+                  count: ctrl.completedCount,
+                  icon: Icons.check_circle_outline_rounded,
+                  iconColor: const Color(0xFF10B981),
+                  iconBg: const Color(0xFFD1FAE5),
+                ),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(
+                child: _StatCard(
+                  label: 'Pending',
+                  count: ctrl.pendingCount,
+                  icon: Icons.hourglass_empty_rounded,
+                  iconColor: const Color(0xFFF59E0B),
+                  iconBg: const Color(0xFFFEF3C7),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: _StatCard(
+                  label: 'In Progress',
+                  count: ctrl.inProgressCount,
+                  icon: Icons.edit_note_rounded,
+                  iconColor: primaryColor,
+                  iconBg: const Color(0xFFDBEAFE),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: _StatCard(
+                  label: 'Completed',
+                  count: ctrl.completedCount,
+                  icon: Icons.check_circle_outline_rounded,
+                  iconColor: const Color(0xFF10B981),
+                  iconBg: const Color(0xFFD1FAE5),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -413,8 +504,7 @@ class _StatCard extends StatelessWidget {
       bgColor: whiteColor,
       borderRadius: BorderRadius.circular(14),
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
           AppContainer(
             bgColor: iconBg,
@@ -422,15 +512,23 @@ class _StatCard extends StatelessWidget {
             padding: const EdgeInsets.all(10),
             child: Icon(icon, color: iconColor, size: 22),
           ),
-          const SizedBox(height: 16),
-          AppTextBold(
-            text: '$count',
-            color: navyBlueColor,
-            fontSize: 28,
-            fontFamily: FontFamily.inter,
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppTextBold(
+                text: '$count',
+                color: navyBlueColor,
+                fontSize: 24,
+                fontFamily: FontFamily.inter,
+              ),
+              AppTextRegular(
+                text: label,
+                color: descriptiveColor,
+                fontSize: 13,
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          AppTextRegular(text: label, color: descriptiveColor, fontSize: 13),
         ],
       ),
     );
@@ -517,20 +615,22 @@ class _UpcomingAudits extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppTextSemiBold(
-                  text: row['name'],
-                  color: navyBlueColor,
-                  fontSize: 14,
-                ),
-                AppTextRegular(
-                  text: row['department'],
-                  color: descriptiveColor,
-                  fontSize: 12,
-                ),
-              ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppTextSemiBold(
+                    text: row['name'],
+                    color: navyBlueColor,
+                    fontSize: 14,
+                  ),
+                  AppTextRegular(
+                    text: row['department'],
+                    color: descriptiveColor,
+                    fontSize: 12,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -564,7 +664,7 @@ class _UpcomingAudits extends StatelessWidget {
           txt: "Start",
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
           borderRadius: BorderRadius.circular(8),
-          onPress: () {},
+          onPress: () => Get.find<HomeController>().startNewAudit(),
         ),
       ),
     ];
@@ -586,7 +686,7 @@ class _UpcomingAudits extends StatelessWidget {
                 fontFamily: FontFamily.inter,
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () => controller.viewAllAudits(),
                 child: AppTextRegular(
                   text: "View All",
                   color: primaryColor,
