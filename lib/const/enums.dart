@@ -1,7 +1,7 @@
-enum FontFamily {inter}
+enum FontFamily { inter }
 
-enum Auth {login, forgotPassword, resetPassword, otp}
+enum AuthScreen { login, forgotPassword, resetPassword, otp }
 
-enum Request {get, post, put, del}
+enum Request { get, post, put, del }
 
-enum Env {dev, local}
+enum Env { dev, local }

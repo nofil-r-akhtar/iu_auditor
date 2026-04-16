@@ -21,43 +21,38 @@ class ScreenTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-  // access observable directly
-  // final currentPage = controller.currentPage.value;
+      // access observable directly
+      // final currentPage = controller.currentPage.value;
+      final _ = controller.currentPage.value;
+      final start = data != null ? controller.getStartIndex() : 0;
+      final end = data != null ? controller.getEndIndex(data!.length) : 0;
+      final currentData = data != null
+          ? data!.sublist(start, end)
+          : <dynamic>[];
 
-  final start = data != null ? controller.getStartIndex() : 0;
-  final end = data != null ? controller.getEndIndex(data!.length) : 0;
-  final currentData =
-      data != null ? data!.sublist(start, end) : <dynamic>[];
-
-  return Column(
-    children: [
-      Header(columns: columns),
-      const Divider(height: 1),
-      if (currentData.isNotEmpty)
-        ...currentData.map(
-          (row) => BuildRow(
-            columns: columns,
-            rowData: row,
-          ),
-        )
-      else
-        AppContainer(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Center(
-            child: Text(
-              "No data available",
-              style: TextStyle(color: Colors.grey),
+      return Column(
+        children: [
+          Header(columns: columns),
+          const Divider(height: 1),
+          if (currentData.isNotEmpty)
+            ...currentData.map(
+              (row) => BuildRow(columns: columns, rowData: row),
+            )
+          else
+            AppContainer(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: AppTextRegular(
+                  text: "No data available",
+                  color: Colors.grey,
+                ),
+              ),
             ),
-          ),
-        ),
-      if (data != null && data!.isNotEmpty)
-        Pagination(
-          controller: controller,
-          dataLength: data!.length,
-        ),
-    ],
-  );
-});
+          if (data != null && data!.isNotEmpty)
+            Pagination(controller: controller, dataLength: data!.length),
+        ],
+      );
+    });
   }
 }
 
@@ -67,7 +62,8 @@ class Pagination extends StatelessWidget {
   const Pagination({
     required this.controller,
     required this.dataLength,
-    super.key});
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -79,14 +75,11 @@ class Pagination extends StatelessWidget {
           icon: const Icon(Icons.chevron_left),
         ),
         Obx(() {
-          final totalPages =
-              (dataLength / controller.rowsPerPage).ceil();
-          return Text(
-              "${controller.currentPage.value + 1} / $totalPages");
+          final totalPages = (dataLength / controller.rowsPerPage).ceil();
+          return Text("${controller.currentPage.value + 1} / $totalPages");
         }),
         IconButton(
-          onPressed: () =>
-              controller.nextPage(dataLength),
+          onPressed: () => controller.nextPage(dataLength),
           icon: const Icon(Icons.chevron_right),
         ),
       ],
@@ -97,10 +90,7 @@ class Pagination extends StatelessWidget {
 class Header extends StatelessWidget {
   final List<TableColumnModel> columns;
 
-  const Header({
-    super.key,
-    required this.columns,
-  });
+  const Header({super.key, required this.columns});
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +100,7 @@ class Header extends StatelessWidget {
       child: Row(
         children: columns.map((column) {
           return Expanded(
-            child: AppTextSemiBold(
-              text: column.title,
-              color: navyBlueColor,
-            ),
+            child: AppTextSemiBold(text: column.title, color: navyBlueColor),
           );
         }).toList(),
       ),
@@ -125,11 +112,7 @@ class BuildRow extends StatelessWidget {
   final List<TableColumnModel> columns;
   final dynamic rowData;
 
-  const BuildRow({
-    super.key,
-    required this.columns,
-    required this.rowData,
-  });
+  const BuildRow({super.key, required this.columns, required this.rowData});
 
   @override
   Widget build(BuildContext context) {
@@ -149,19 +132,16 @@ class BuildRow extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "${column.title}: ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: navyBlueColor,
-                    ),
+                  AppTextSemiBold(
+                    text: "${column.title}: ",
+                    color: navyBlueColor,
                   ),
                   Expanded(
                     child: column.cellBuilder != null
                         ? column.cellBuilder!(rowData)
-                        : Text(
-                            rowData[column.title]?.toString() ?? "",
-                            style: TextStyle(color: descriptiveColor),
+                        : AppTextRegular(
+                            text: rowData[column.title]?.toString() ?? "",
+                            color: descriptiveColor,
                           ),
                   ),
                 ],
