@@ -21,8 +21,6 @@ class Login extends StatelessWidget {
     Get.delete<LoginController>(force: true);
     final LoginController controller = Get.put(LoginController());
 
-    // FIX: LayoutBuilder detects screen width so we can show a single-column
-    // layout on mobile instead of squishing both panels side-by-side.
     return Scaffold(
       backgroundColor: bgColor,
       body: LayoutBuilder(
@@ -38,7 +36,7 @@ class Login extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-// MOBILE — form only, no branding panel
+// MOBILE — top blue branding panel + overlapping white card
 // ─────────────────────────────────────────
 class _MobileLayout extends StatelessWidget {
   final LoginController controller;
@@ -46,62 +44,139 @@ class _MobileLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Mini brand header
-            Row(
-              children: [
-                AppContainer(
-                  bgColor: primaryColor,
-                  borderRadius: BorderRadius.circular(10),
-                  padding: const EdgeInsets.all(8),
-                  child: const Icon(
-                    Icons.school_rounded,
-                    color: whiteColor,
-                    size: 18,
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
+      child: Column(
+        children: [
+          // ── Blue branding panel ──
+          _MobileBrandingPanel(),
+
+          // ── White card overlapping the blue panel ──
+          Transform.translate(
+            offset: const Offset(0, -28),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppTextBold(
+                        text: "Welcome Back",
+                        color: navyBlueColor,
+                        fontSize: 22,
+                        fontFamily: FontFamily.inter,
+                      ),
+                      const SizedBox(height: 4),
+                      AppTextRegular(
+                        text: "Enter your credentials to access.",
+                        color: descriptiveColor,
+                        fontSize: 13,
+                      ),
+                      const SizedBox(height: 24),
+                      _LoginForm(controller: controller),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                AppTextBold(
-                  text: "IU Auditor",
-                  color: navyBlueColor,
-                  fontSize: 16,
-                  fontFamily: FontFamily.inter,
-                ),
-              ],
+              ),
             ),
+          ),
 
-            const SizedBox(height: 40),
-
-            AppTextBold(
-              text: "Welcome Back",
-              color: navyBlueColor,
-              fontSize: 26,
-              fontFamily: FontFamily.inter,
+          // Footer note
+          Transform.translate(
+            offset: const Offset(0, -16),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: AppTextRegular(
+                text:
+                    "For auditor access only. Contact admin if you need assistance.",
+                color: iconColor,
+                fontSize: 11,
+                textAlign: TextAlign.center,
+              ),
             ),
-            const SizedBox(height: 6),
-            AppTextRegular(
-              text: "Sign in to your account to continue",
-              color: descriptiveColor,
-              fontSize: 14,
-            ),
+          ),
 
-            const SizedBox(height: 32),
-
-            _LoginForm(controller: controller),
-          ],
-        ),
+          const SizedBox(height: 28),
+        ],
       ),
     );
   }
 }
 
 // ─────────────────────────────────────────
-// DESKTOP / TABLET — two-panel layout
+// MOBILE — blue branding panel
+// ─────────────────────────────────────────
+class _MobileBrandingPanel extends StatelessWidget {
+  const _MobileBrandingPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(top: 60, bottom: 60),
+      color: navyBlueColor,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Icon badge
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: primaryColor.withValues(alpha: 0.25),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.school_rounded,
+              color: whiteColor,
+              size: 30,
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // University logo / wordmark image
+          AppAssetImage(imagePath: logo, height: 44, fit: BoxFit.contain),
+
+          const SizedBox(height: 14),
+
+          AppTextBold(
+            text: "Auditor Portal",
+            color: whiteColor,
+            fontSize: 22,
+            fontFamily: FontFamily.inter,
+          ),
+
+          const SizedBox(height: 6),
+
+          AppTextRegular(
+            text: "Sign in to view and conduct faculty audits",
+            color: whiteColor.withValues(alpha: 0.65),
+            fontSize: 13,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────
+// DESKTOP / TABLET — two-panel layout (unchanged)
 // ─────────────────────────────────────────
 class _DesktopLayout extends StatelessWidget {
   final LoginController controller;
@@ -174,9 +249,7 @@ class _DesktopLayout extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       const Spacer(),
-
                       AppAssetImage(
                         imagePath: logo,
                         height: 52,
@@ -196,9 +269,7 @@ class _DesktopLayout extends StatelessWidget {
                         color: whiteColor.withValues(alpha: 0.6),
                         fontSize: 14,
                       ),
-
                       const Spacer(),
-
                       Row(
                         children: [
                           AppContainer(
@@ -249,11 +320,8 @@ class _DesktopLayout extends StatelessWidget {
                       fontSize: 14,
                     ),
                     const SizedBox(height: 36),
-
                     _LoginForm(controller: controller),
-
                     const SizedBox(height: 32),
-
                     Row(
                       children: [
                         const Expanded(
@@ -272,9 +340,7 @@ class _DesktopLayout extends StatelessWidget {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 24),
-
                     Center(
                       child: AppTextRegular(
                         text:
@@ -369,26 +435,32 @@ class _LoginForm extends StatelessWidget {
 
         const SizedBox(height: 10),
 
-        Align(
-          alignment: Alignment.centerRight,
-          child: AppTextButton(
-            btnText: "Forgot Password?",
-            txtSize: 13,
-            onPressed: () => controller.goToForgotPassword(),
+        SizedBox(
+          width: double.infinity,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: AppTextButton(
+              btnText: "Forgot Password?",
+              txtSize: 13,
+              onPressed: () => controller.goToForgotPassword(),
+            ),
           ),
         ),
 
-        const SizedBox(height: 28),
+        const SizedBox(height: 24),
 
-        Obx(
-          () => AppButton(
-            txt: controller.isLoading.value ? "Signing in..." : "Sign In  →",
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            onPress: controller.isLoading.value
-                ? null
-                : () => controller.login(),
-            alignment: Alignment.center,
-            borderRadius: BorderRadius.circular(10),
+        SizedBox(
+          width: double.infinity,
+          child: Obx(
+            () => AppButton(
+              txt: controller.isLoading.value ? "Signing in..." : "Sign In  →",
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              onPress: controller.isLoading.value
+                  ? null
+                  : () => controller.login(),
+              alignment: Alignment.center,
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         ),
       ],

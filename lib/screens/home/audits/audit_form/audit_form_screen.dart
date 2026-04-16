@@ -4,6 +4,7 @@ import 'package:iu_auditor/app_theme/colors.dart';
 import 'package:iu_auditor/components/app_button.dart';
 import 'package:iu_auditor/components/app_container.dart';
 import 'package:iu_auditor/components/app_text.dart';
+import 'package:iu_auditor/core/app_responsive.dart';
 import 'package:iu_auditor/screens/home/audits/audit_form/audit_form_controller.dart';
 import 'package:iu_auditor/screens/home/audits/audit_success_screen.dart';
 import 'package:iu_auditor/const/enums.dart';
@@ -25,47 +26,68 @@ class AuditFormScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: Row(
-        children: [
-          _LeftPanel(controller: controller),
-          Expanded(
-            child: GetBuilder<AuditFormController>(
-              tag: controller.teacherName,
-              builder: (ctrl) => Column(
-                children: [
-                  _ProgressHeader(controller: ctrl),
-                  Expanded(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(40),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 680),
-                          child: AppContainer(
-                            bgColor: whiteColor,
-                            borderRadius: BorderRadius.circular(16),
-                            padding: const EdgeInsets.all(36),
-                            child:
-                                ctrl.currentQuestion.type == QuestionType.rating
-                                ? _RatingQuestion(controller: ctrl)
-                                : _TextQuestion(controller: ctrl),
+      // FIX: Wrap in LayoutBuilder so we can drive responsive behaviour
+      // throughout the entire screen from a single AppResponsive instance.
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final r = AppResponsive(constraints.maxWidth);
+
+          return Row(
+            children: [
+              // FIX: Left panel is hidden on mobile — it consumed 280 px of a
+              // ~360 px screen, leaving almost no room for the form itself.
+              if (!r.isMobile) _LeftPanel(controller: controller),
+
+              Expanded(
+                child: GetBuilder<AuditFormController>(
+                  tag: controller.teacherName,
+                  builder: (ctrl) => Column(
+                    children: [
+                      _ProgressHeader(controller: ctrl, responsive: r),
+                      Expanded(
+                        child: Center(
+                          child: SingleChildScrollView(
+                            // FIX: tighter padding on mobile so the card has
+                            // room to breathe without eating into the screen.
+                            padding: EdgeInsets.all(r.isMobile ? 16 : 40),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 680),
+                              child: AppContainer(
+                                bgColor: whiteColor,
+                                borderRadius: BorderRadius.circular(16),
+                                // FIX: card inner padding reduced on mobile.
+                                padding: EdgeInsets.all(r.isMobile ? 20 : 36),
+                                child:
+                                    ctrl.currentQuestion.type ==
+                                        QuestionType.rating
+                                    ? _RatingQuestion(
+                                        controller: ctrl,
+                                        responsive: r,
+                                      )
+                                    : _TextQuestion(
+                                        controller: ctrl,
+                                        responsive: r,
+                                      ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      _NavigationBar(controller: ctrl, responsive: r),
+                    ],
                   ),
-                  _NavigationBar(controller: ctrl),
-                ],
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
 }
 
 // ─────────────────────────────────────────
-// LEFT PANEL
+// LEFT PANEL  (tablet / desktop only)
 // ─────────────────────────────────────────
 class _LeftPanel extends StatelessWidget {
   final AuditFormController controller;
@@ -214,23 +236,48 @@ class _LeftPanel extends StatelessWidget {
 // ─────────────────────────────────────────
 class _ProgressHeader extends StatelessWidget {
   final AuditFormController controller;
-  const _ProgressHeader({required this.controller});
+  final AppResponsive responsive;
+  const _ProgressHeader({required this.controller, required this.responsive});
 
   @override
   Widget build(BuildContext context) {
     return AppContainer(
       bgColor: whiteColor,
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
+      // FIX: reduced horizontal padding on mobile from 40 → 16.
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.isMobile ? 16 : 40,
+        vertical: 18,
+      ),
       child: Row(
         children: [
+          // FIX: on mobile the left panel (which had the Back button) is
+          // hidden, so we inject a back arrow directly into the header.
+          if (responsive.isMobile) ...[
+            GestureDetector(
+              onTap: () => Get.back(),
+              child: const Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: Icon(
+                  Icons.arrow_back_ios_rounded,
+                  color: navyBlueColor,
+                  size: 18,
+                ),
+              ),
+            ),
+          ],
+
+          // FIX: shorten label on mobile to save horizontal space.
           AppTextSemiBold(
-            text:
-                "Question ${controller.currentIndex + 1} of ${controller.totalQuestions}",
+            text: responsive.isMobile
+                ? "Q ${controller.currentIndex + 1}/${controller.totalQuestions}"
+                : "Question ${controller.currentIndex + 1} of ${controller.totalQuestions}",
             color: navyBlueColor,
             fontSize: 14,
             fontFamily: FontFamily.inter,
           ),
-          const SizedBox(width: 20),
+
+          SizedBox(width: responsive.isMobile ? 10 : 20),
+
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(4),
@@ -242,12 +289,16 @@ class _ProgressHeader extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          AppTextRegular(
-            text: "${(controller.progressPercent * 100).toInt()}% Complete",
-            color: descriptiveColor,
-            fontSize: 13,
-          ),
+
+          // FIX: hide the "% Complete" label on mobile — no room for it.
+          if (!responsive.isMobile) ...[
+            const SizedBox(width: 16),
+            AppTextRegular(
+              text: "${(controller.progressPercent * 100).toInt()}% Complete",
+              color: descriptiveColor,
+              fontSize: 13,
+            ),
+          ],
         ],
       ),
     );
@@ -259,10 +310,15 @@ class _ProgressHeader extends StatelessWidget {
 // ─────────────────────────────────────────
 class _RatingQuestion extends StatelessWidget {
   final AuditFormController controller;
-  const _RatingQuestion({required this.controller});
+  final AppResponsive responsive;
+  const _RatingQuestion({required this.controller, required this.responsive});
 
   @override
   Widget build(BuildContext context) {
+    // FIX: smaller stars on mobile so they fit comfortably within the
+    // reduced card width without overflowing.
+    final starSize = responsive.isMobile ? 36.0 : 48.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -282,11 +338,12 @@ class _RatingQuestion extends StatelessWidget {
         AppTextBold(
           text: controller.currentQuestion.question,
           color: navyBlueColor,
-          fontSize: 20,
+          // FIX: slightly smaller question text on mobile.
+          fontSize: responsive.isMobile ? 17 : 20,
           fontFamily: FontFamily.inter,
         ),
 
-        const SizedBox(height: 40),
+        SizedBox(height: responsive.isMobile ? 28 : 40),
 
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -316,7 +373,7 @@ class _RatingQuestion extends StatelessWidget {
                     color: selected
                         ? const Color(0xFFF59E0B)
                         : const Color(0xFFCBD5E1),
-                    size: 48,
+                    size: starSize,
                   ),
                   const SizedBox(height: 6),
                   AppTextRegular(
@@ -342,7 +399,8 @@ class _RatingQuestion extends StatelessWidget {
 // ─────────────────────────────────────────
 class _TextQuestion extends StatelessWidget {
   final AuditFormController controller;
-  const _TextQuestion({required this.controller});
+  final AppResponsive responsive;
+  const _TextQuestion({required this.controller, required this.responsive});
 
   @override
   Widget build(BuildContext context) {
@@ -367,7 +425,8 @@ class _TextQuestion extends StatelessWidget {
         AppTextBold(
           text: controller.currentQuestion.question,
           color: navyBlueColor,
-          fontSize: 20,
+          // FIX: slightly smaller question text on mobile.
+          fontSize: responsive.isMobile ? 17 : 20,
           fontFamily: FontFamily.inter,
         ),
 
@@ -444,13 +503,18 @@ class _DotIndicator extends StatelessWidget {
 // ─────────────────────────────────────────
 class _NavigationBar extends StatelessWidget {
   final AuditFormController controller;
-  const _NavigationBar({required this.controller});
+  final AppResponsive responsive;
+  const _NavigationBar({required this.controller, required this.responsive});
 
   @override
   Widget build(BuildContext context) {
     return AppContainer(
       bgColor: whiteColor,
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+      // FIX: reduced horizontal padding on mobile from 40 → 16.
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.isMobile ? 16 : 40,
+        vertical: 16,
+      ),
       child: Row(
         children: [
           // Back button — disabled on first question
@@ -463,7 +527,12 @@ class _NavigationBar extends StatelessWidget {
               color: navyBlueColor,
               size: 14,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            // FIX: tighter horizontal padding on mobile so the button
+            // doesn't take too much width away from the Next / Submit button.
+            padding: EdgeInsets.symmetric(
+              horizontal: responsive.isMobile ? 16 : 24,
+              vertical: 12,
+            ),
             borderRadius: BorderRadius.circular(10),
             onPress: controller.isFirstQuestion
                 ? null
@@ -480,7 +549,8 @@ class _NavigationBar extends StatelessWidget {
 
             if (controller.isLastQuestion) {
               return AppButton(
-                txt: "  Submit Audit",
+                // FIX: shorten label on mobile to avoid overflow.
+                txt: responsive.isMobile ? "Submit" : "  Submit Audit",
                 icon: const Icon(
                   Icons.send_rounded,
                   color: whiteColor,
@@ -489,8 +559,8 @@ class _NavigationBar extends StatelessWidget {
                 bgColor: canGo
                     ? const Color(0xFF10B981)
                     : const Color(0xFFCBD5E1),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.isMobile ? 20 : 28,
                   vertical: 12,
                 ),
                 borderRadius: BorderRadius.circular(10),
@@ -506,7 +576,10 @@ class _NavigationBar extends StatelessWidget {
                 size: 14,
               ),
               bgColor: canGo ? primaryColor : const Color(0xFFCBD5E1),
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: responsive.isMobile ? 20 : 28,
+                vertical: 12,
+              ),
               borderRadius: BorderRadius.circular(10),
               onPress: canGo ? () => controller.goNext() : null,
             );
