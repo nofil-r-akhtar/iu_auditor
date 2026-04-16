@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iu_auditor/app_theme/colors.dart';
 import 'package:iu_auditor/components/app_button.dart';
+import 'package:iu_auditor/components/app_container.dart';
 import 'package:iu_auditor/components/app_image.dart';
 import 'package:iu_auditor/components/app_svg.dart';
 import 'package:iu_auditor/components/app_text.dart';
 import 'package:iu_auditor/components/app_text_field.dart';
-import 'package:iu_auditor/components/auth_box.dart';
 import 'package:iu_auditor/const/assets.dart';
 import 'package:iu_auditor/const/enums.dart';
 import 'package:iu_auditor/screens/auth/forgot_password/forgot_password_controller.dart';
@@ -16,8 +16,6 @@ class ForgotPassword extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Delete any stale instance before creating a fresh one,
-    // same pattern as OtpView — prevents conflict on back + re-entry.
     Get.delete<ForgotPasswordController>(force: true);
     final ForgotPasswordController controller = Get.put(
       ForgotPasswordController(),
@@ -38,7 +36,7 @@ class ForgotPassword extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-// MOBILE — top blue branding panel + overlapping white card
+// MOBILE — Branding Panel + Overlapping Card
 // ─────────────────────────────────────────
 class _MobileLayout extends StatelessWidget {
   final ForgotPasswordController controller;
@@ -50,10 +48,7 @@ class _MobileLayout extends StatelessWidget {
       physics: const ClampingScrollPhysics(),
       child: Column(
         children: [
-          // ── Blue branding panel ──
           const _MobileBrandingPanel(),
-
-          // ── White card overlapping the blue panel ──
           Transform.translate(
             offset: const Offset(0, -28),
             child: Center(
@@ -98,8 +93,6 @@ class _MobileLayout extends StatelessWidget {
               ),
             ),
           ),
-
-          // Footer note
           Transform.translate(
             offset: const Offset(0, -16),
             child: Padding(
@@ -113,7 +106,6 @@ class _MobileLayout extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 28),
         ],
       ),
@@ -122,7 +114,178 @@ class _MobileLayout extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-// MOBILE — blue branding panel
+// DESKTOP — Two-panel Layout Matching Login
+// ─────────────────────────────────────────
+class _DesktopLayout extends StatelessWidget {
+  final ForgotPasswordController controller;
+  const _DesktopLayout({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // ── Left Panel (Branding) ──
+        Expanded(
+          flex: 5,
+          child: AppContainer(
+            bgColor: navyBlueColor,
+            child: Stack(
+              children: [
+                // Decorative circles
+                Positioned(
+                  top: -60,
+                  left: -60,
+                  child: AppContainer(
+                    width: 300,
+                    height: 300,
+                    shape: BoxShape.circle,
+                    bgColor: primaryColor.withValues(alpha: 0.15),
+                  ),
+                ),
+                Positioned(
+                  bottom: -80,
+                  right: -80,
+                  child: AppContainer(
+                    width: 380,
+                    height: 380,
+                    shape: BoxShape.circle,
+                    bgColor: primaryColor.withValues(alpha: 0.1),
+                  ),
+                ),
+                // Content
+                Padding(
+                  padding: const EdgeInsets.all(52),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Back Button & Logo Row
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => Get.back(),
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: whiteColor,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          AppContainer(
+                            bgColor: primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                            padding: const EdgeInsets.all(10),
+                            child: const Icon(
+                              Icons.school_rounded,
+                              color: whiteColor,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          AppTextBold(
+                            text: "IU Auditor",
+                            color: whiteColor,
+                            fontSize: 18,
+                            fontFamily: FontFamily.inter,
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      AppAssetImage(
+                        imagePath: logo,
+                        height: 52,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 28),
+                      AppTextBold(
+                        text: "Recover\nAccount",
+                        color: whiteColor,
+                        fontSize: 44,
+                        fontFamily: FontFamily.inter,
+                      ),
+                      const SizedBox(height: 16),
+                      AppTextRegular(
+                        text:
+                            "Follow the steps to securely verify your identity\nand regain access to the portal.",
+                        color: whiteColor.withValues(alpha: 0.6),
+                        fontSize: 14,
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          AppContainer(
+                            width: 32,
+                            height: 2,
+                            bgColor: primaryColor,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          const SizedBox(width: 10),
+                          AppTextRegular(
+                            text: "Iqra University Security Protocol",
+                            color: whiteColor.withValues(alpha: 0.4),
+                            fontSize: 12,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // ── Right Panel (Form) ──
+        Expanded(
+          flex: 4,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 40),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppTextBold(
+                      text: "Forgot Password?",
+                      color: navyBlueColor,
+                      fontSize: 28,
+                      fontFamily: FontFamily.inter,
+                    ),
+                    const SizedBox(height: 6),
+                    AppTextRegular(
+                      text:
+                          "Enter your email to receive a password reset link.",
+                      color: descriptiveColor,
+                      fontSize: 14,
+                    ),
+                    const SizedBox(height: 36),
+                    _ForgotPasswordForm(controller: controller),
+                    const SizedBox(height: 32),
+                    const Divider(color: Color(0xFFE2E8F0)),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: AppTextRegular(
+                        text:
+                            "For auditor access only. Contact admin if you need assistance.",
+                        color: iconColor,
+                        fontSize: 12,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────
+// SHARED MOBILE BRANDING
 // ─────────────────────────────────────────
 class _MobileBrandingPanel extends StatelessWidget {
   const _MobileBrandingPanel();
@@ -142,7 +305,7 @@ class _MobileBrandingPanel extends StatelessWidget {
               left: 8,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, color: whiteColor),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => Get.back(),
               ),
             ),
             Padding(
@@ -150,7 +313,6 @@ class _MobileBrandingPanel extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Icon badge
                   Container(
                     width: 60,
                     height: 60,
@@ -169,29 +331,22 @@ class _MobileBrandingPanel extends StatelessWidget {
                       size: 30,
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
-                  // University logo / wordmark image
                   AppAssetImage(
                     imagePath: logo,
                     height: 44,
                     fit: BoxFit.contain,
                   ),
-
                   const SizedBox(height: 14),
-
                   AppTextBold(
                     text: "Auditor Portal",
                     color: whiteColor,
                     fontSize: 22,
                     fontFamily: FontFamily.inter,
                   ),
-
                   const SizedBox(height: 6),
-
                   AppTextRegular(
-                    text: "Sign in to view and conduct faculty audits",
+                    text: "Account Recovery",
                     color: whiteColor.withValues(alpha: 0.65),
                     fontSize: 13,
                   ),
@@ -206,7 +361,7 @@ class _MobileBrandingPanel extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-// MOBILE FORM CONTENT
+// SHARED FORM
 // ─────────────────────────────────────────
 class _ForgotPasswordForm extends StatelessWidget {
   final ForgotPasswordController controller;
@@ -242,80 +397,18 @@ class _ForgotPasswordForm extends StatelessWidget {
             errorText: controller.emailError.value,
           ),
         ),
-
         const SizedBox(height: 24),
-
         SizedBox(
           width: double.infinity,
           child: Obx(
             () => AppButton(
-              txt: controller.isLoading.value ? "Please wait..." : "Next  →",
+              txt: controller.isLoading.value ? "Processing..." : "Next  →",
               padding: const EdgeInsets.symmetric(vertical: 15),
               onPress: controller.isLoading.value
                   ? null
                   : () => controller.forgotPassword(),
               alignment: Alignment.center,
               borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────
-// DESKTOP / TABLET — Original Centered Layout
-// ─────────────────────────────────────────
-class _DesktopLayout extends StatelessWidget {
-  final ForgotPasswordController controller;
-  const _DesktopLayout({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.topLeft,
-          child: SafeArea(
-            child: IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Center(
-            child: AuthBox(
-              isFrom: AuthScreen.forgotPassword,
-              headerTxt: "Forgot Your Password?",
-              descriptionTxt:
-                  "Enter your registered email address and we'll send you a link to reset your password.",
-              onPress: () => controller.forgotPassword(),
-              isLoading: controller.isLoading,
-              components: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  const AppTextSemiBold(text: "Email"),
-                  const SizedBox(height: 3),
-                  Obx(
-                    () => AppTextField(
-                      textController: controller.emailController,
-                      prefixIcon: AppSvg(
-                        assetPath: user,
-                        height: 10,
-                        width: 10,
-                        fit: BoxFit.scaleDown,
-                      ),
-                      placeholder: "admin@iqra.edu.pk",
-                      placeholderColor: hintTextColor,
-                      isError: controller.emailError.value.isNotEmpty,
-                      errorText: controller.emailError.value,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ),

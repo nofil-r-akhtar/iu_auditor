@@ -18,7 +18,6 @@ class Login extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.delete<LoginController>(force: true);
     final LoginController controller = Get.put(LoginController());
 
     return Scaffold(

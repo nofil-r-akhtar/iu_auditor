@@ -69,7 +69,15 @@ class ResetPasswordController extends GetxController {
         return;
       }
 
-      Get.snackbar('Success', 'Password reset successfully');
+      // Success!
+      Get.snackbar(
+        'Success',
+        'Password reset successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Use Get.offAll to clear the reset password screen from memory
+      // and return to a fresh Login screen.
       Get.offAll(() => const Login());
     } catch (e) {
       debugPrint('Reset password error: $e');

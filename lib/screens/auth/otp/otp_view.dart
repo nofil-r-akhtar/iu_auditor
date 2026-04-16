@@ -35,7 +35,7 @@ class OtpView extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-// MOBILE — top blue branding panel + overlapping white card
+// MOBILE — Clean & Minimalist Card
 // ─────────────────────────────────────────
 class _MobileLayout extends StatelessWidget {
   final OtpController controller;
@@ -48,7 +48,6 @@ class _MobileLayout extends StatelessWidget {
       child: Column(
         children: [
           const _MobileBrandingPanel(),
-
           Transform.translate(
             offset: const Offset(0, -28),
             child: Center(
@@ -80,20 +79,19 @@ class _MobileLayout extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       AppTextRegular(
-                        text:
-                            "Please enter the verification code sent to your registered email to continue.",
+                        text: "Enter the code sent to your email to continue.",
                         color: descriptiveColor,
                         fontSize: 13,
                       ),
                       const SizedBox(height: 24),
-                      _OtpForm(controller: controller),
+                      // Passing isDesktop: false for mobile styling
+                      _OtpForm(controller: controller, isDesktop: false),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-
           Transform.translate(
             offset: const Offset(0, -16),
             child: Padding(
@@ -107,7 +105,6 @@ class _MobileLayout extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 28),
         ],
       ),
@@ -116,7 +113,178 @@ class _MobileLayout extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-// MOBILE — blue branding panel
+// DESKTOP — High Contrast Pro Layout
+// ─────────────────────────────────────────
+class _DesktopLayout extends StatelessWidget {
+  final OtpController controller;
+  const _DesktopLayout({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // Left Panel (Branding)
+        Expanded(
+          flex: 5,
+          child: AppContainer(
+            bgColor: navyBlueColor,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -60,
+                  left: -60,
+                  child: AppContainer(
+                    width: 300,
+                    height: 300,
+                    shape: BoxShape.circle,
+                    bgColor: primaryColor.withValues(alpha: 0.15),
+                  ),
+                ),
+                Positioned(
+                  bottom: -80,
+                  right: -80,
+                  child: AppContainer(
+                    width: 380,
+                    height: 380,
+                    shape: BoxShape.circle,
+                    bgColor: primaryColor.withValues(alpha: 0.1),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(52),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: whiteColor,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          AppContainer(
+                            bgColor: primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                            padding: const EdgeInsets.all(10),
+                            child: const Icon(
+                              Icons.school_rounded,
+                              color: whiteColor,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          AppTextBold(
+                            text: "IU Auditor",
+                            color: whiteColor,
+                            fontSize: 18,
+                            fontFamily: FontFamily.inter,
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      AppAssetImage(
+                        imagePath: logo,
+                        height: 52,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 28),
+                      AppTextBold(
+                        text: "Identity\nVerification",
+                        color: whiteColor,
+                        fontSize: 44,
+                        fontFamily: FontFamily.inter,
+                      ),
+                      const SizedBox(height: 16),
+                      AppTextRegular(
+                        text:
+                            "We've sent a 6-digit code to your email.\nPlease check your inbox to verify your identity.",
+                        color: whiteColor.withValues(alpha: 0.6),
+                        fontSize: 14,
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          AppContainer(
+                            width: 32,
+                            height: 2,
+                            bgColor: primaryColor,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          const SizedBox(width: 10),
+                          AppTextRegular(
+                            text: "Authorized Access Only",
+                            color: whiteColor.withValues(alpha: 0.4),
+                            fontSize: 12,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Right Panel (OTP Form)
+        Expanded(
+          flex: 4,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 40),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppTextBold(
+                      text: "Verify Your Email",
+                      color: navyBlueColor,
+                      fontSize: 28,
+                      fontFamily: FontFamily.inter,
+                    ),
+                    const SizedBox(height: 6),
+                    AppTextRegular(
+                      text:
+                          "Please enter the code sent to your registered account.",
+                      color: descriptiveColor,
+                      fontSize: 14,
+                    ),
+                    const SizedBox(height: 36),
+
+                    // Passing isDesktop: true for darker box styling
+                    _OtpForm(controller: controller, isDesktop: true),
+
+                    const SizedBox(height: 32),
+                    const Divider(color: Color(0xFFE2E8F0)),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: AppTextRegular(
+                        text:
+                            "For auditor access only. Contact admin if you need assistance.",
+                        color: iconColor,
+                        fontSize: 12,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────
+// MOBILE BRANDING PANEL
 // ─────────────────────────────────────────
 class _MobileBrandingPanel extends StatelessWidget {
   const _MobileBrandingPanel();
@@ -177,7 +345,7 @@ class _MobileBrandingPanel extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   AppTextRegular(
-                    text: "Sign in to view and conduct faculty audits",
+                    text: "Secure Verification",
                     color: whiteColor.withValues(alpha: 0.65),
                     fontSize: 13,
                   ),
@@ -192,11 +360,12 @@ class _MobileBrandingPanel extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-// SHARED FORM CONTENT
+// SHARED FORM — Smart Adaptive Styling
 // ─────────────────────────────────────────
 class _OtpForm extends StatelessWidget {
   final OtpController controller;
-  const _OtpForm({required this.controller});
+  final bool isDesktop;
+  const _OtpForm({required this.controller, required this.isDesktop});
 
   @override
   Widget build(BuildContext context) {
@@ -208,24 +377,49 @@ class _OtpForm extends StatelessWidget {
           () => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppOtpField(
-                controller: controller.otpController,
-                onChanged: (_) => controller.otpError.value = '',
+              // This container conditionally applies styling only if on Desktop
+              Container(
+                width: double.infinity,
+                padding: isDesktop
+                    ? const EdgeInsets.symmetric(vertical: 24, horizontal: 16)
+                    : EdgeInsets.zero,
+                decoration: isDesktop
+                    ? BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFCBD5E1),
+                          width: 1.5,
+                        ),
+                      )
+                    : null,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 320),
+                    child: SizedBox(
+                      height:
+                          60, // Fixed height keeps the boxes from collapsing on Web
+                      child: AppOtpField(
+                        controller: controller.otpController,
+                        onChanged: (_) => controller.otpError.value = '',
+                      ),
+                    ),
+                  ),
+                ),
               ),
               if (controller.otpError.value.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(top: 6, left: 4),
-                  child: Text(
-                    controller.otpError.value,
-                    style: const TextStyle(color: Colors.red, fontSize: 11),
+                  padding: const EdgeInsets.only(top: 12, left: 4),
+                  child: AppTextRegular(
+                    text: controller.otpError.value,
+                    color: Colors.red,
+                    fontSize: 12,
                   ),
                 ),
             ],
           ),
         ),
-
-        const SizedBox(height: 8),
-
+        const SizedBox(height: 12),
         Align(
           alignment: Alignment.centerRight,
           child: Obx(() {
@@ -244,222 +438,20 @@ class _OtpForm extends StatelessWidget {
             }
           }),
         ),
-
         const SizedBox(height: 24),
-
         SizedBox(
           width: double.infinity,
           child: Obx(
             () => AppButton(
-              txt: controller.isLoading.value ? "Please wait..." : "Next  →",
+              txt: controller.isLoading.value
+                  ? "Verifying..."
+                  : "Verify & Continue  →",
               padding: const EdgeInsets.symmetric(vertical: 15),
               onPress: controller.isLoading.value
                   ? null
                   : () => controller.verifyOtp(),
               alignment: Alignment.center,
               borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────
-// DESKTOP / TABLET — Two-Panel Layout matching Login.dart
-// ─────────────────────────────────────────
-class _DesktopLayout extends StatelessWidget {
-  final OtpController controller;
-  const _DesktopLayout({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // ── Left Panel (branding) ──
-        Expanded(
-          flex: 5,
-          child: AppContainer(
-            bgColor: navyBlueColor,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: -60,
-                  left: -60,
-                  child: AppContainer(
-                    width: 300,
-                    height: 300,
-                    shape: BoxShape.circle,
-                    bgColor: primaryColor.withValues(alpha: 0.15),
-                  ),
-                ),
-                Positioned(
-                  bottom: -80,
-                  right: -80,
-                  child: AppContainer(
-                    width: 380,
-                    height: 380,
-                    shape: BoxShape.circle,
-                    bgColor: primaryColor.withValues(alpha: 0.1),
-                  ),
-                ),
-                Positioned(
-                  bottom: 120,
-                  left: -40,
-                  child: AppContainer(
-                    width: 180,
-                    height: 180,
-                    shape: BoxShape.circle,
-                    bgColor: whiteColor.withValues(alpha: 0.03),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(52),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          AppContainer(
-                            bgColor: primaryColor,
-                            borderRadius: BorderRadius.circular(12),
-                            padding: const EdgeInsets.all(10),
-                            child: const Icon(
-                              Icons.school_rounded,
-                              color: whiteColor,
-                              size: 22,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          AppTextBold(
-                            text: "IU Auditor",
-                            color: whiteColor,
-                            fontSize: 18,
-                            fontFamily: FontFamily.inter,
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      AppAssetImage(
-                        imagePath: logo,
-                        height: 52,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(height: 28),
-                      AppTextBold(
-                        text: "Auditor\nPortal",
-                        color: whiteColor,
-                        fontSize: 44,
-                        fontFamily: FontFamily.inter,
-                      ),
-                      const SizedBox(height: 16),
-                      AppTextRegular(
-                        text:
-                            "A centralized platform to manage,\nreview and conduct faculty audits\nfor Iqra University.",
-                        color: whiteColor.withValues(alpha: 0.6),
-                        fontSize: 14,
-                      ),
-                      const Spacer(),
-                      Row(
-                        children: [
-                          AppContainer(
-                            width: 32,
-                            height: 2,
-                            bgColor: primaryColor,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                          const SizedBox(width: 10),
-                          AppTextRegular(
-                            text: "For authorized auditors only",
-                            color: whiteColor.withValues(alpha: 0.4),
-                            fontSize: 12,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 32),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // ── Right Panel (form) ──
-        Expanded(
-          flex: 4,
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 40),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 420),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Desktop Back Button
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.pop(context),
-                        padding: EdgeInsets.zero,
-                        alignment: Alignment.centerLeft,
-                        color: navyBlueColor,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    AppTextBold(
-                      text: "OTP Verification",
-                      color: navyBlueColor,
-                      fontSize: 28,
-                      fontFamily: FontFamily.inter,
-                    ),
-                    const SizedBox(height: 6),
-                    AppTextRegular(
-                      text:
-                          "Please enter the verification code sent to your registered email to continue.",
-                      color: descriptiveColor,
-                      fontSize: 14,
-                    ),
-                    const SizedBox(height: 36),
-
-                    _OtpForm(controller: controller),
-
-                    const SizedBox(height: 32),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Divider(color: Color(0xFFE2E8F0)),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: AppTextRegular(
-                            text: "Iqra University",
-                            color: iconColor,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const Expanded(
-                          child: Divider(color: Color(0xFFE2E8F0)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Center(
-                      child: AppTextRegular(
-                        text:
-                            "For auditor access only. Contact admin if you need assistance.",
-                        color: iconColor,
-                        fontSize: 12,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
         ),

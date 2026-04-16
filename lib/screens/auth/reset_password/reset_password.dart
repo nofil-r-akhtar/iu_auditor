@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iu_auditor/app_theme/colors.dart';
 import 'package:iu_auditor/components/app_button.dart';
+import 'package:iu_auditor/components/app_container.dart';
 import 'package:iu_auditor/components/app_icon_button.dart';
 import 'package:iu_auditor/components/app_image.dart';
 import 'package:iu_auditor/components/app_svg.dart';
@@ -25,8 +26,6 @@ class ResetPassword extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bgColor,
-      // The AppBar is removed to match the branding panel style,
-      // but you can add a back button inside the branding panel if needed.
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isMobile = constraints.maxWidth < 600;
@@ -52,7 +51,7 @@ class _MobileLayout extends StatelessWidget {
       physics: const ClampingScrollPhysics(),
       child: Column(
         children: [
-          // Blue branding panel (identical to login)
+          // Blue branding panel
           const _BrandingPanel(),
 
           // White card overlapping the blue panel
@@ -123,7 +122,166 @@ class _MobileLayout extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────
-// SHARED BRANDING PANEL
+// DESKTOP / TABLET — Two-panel layout matching login.dart
+// ─────────────────────────────────────────
+class _DesktopLayout extends StatelessWidget {
+  final ResetPasswordController controller;
+  const _DesktopLayout({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        // ── Left Panel (Branding) ──
+        Expanded(
+          flex: 5,
+          child: AppContainer(
+            bgColor: navyBlueColor,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -60,
+                  left: -60,
+                  child: AppContainer(
+                    width: 300,
+                    height: 300,
+                    shape: BoxShape.circle,
+                    bgColor: primaryColor.withValues(alpha: 0.15),
+                  ),
+                ),
+                Positioned(
+                  bottom: -80,
+                  right: -80,
+                  child: AppContainer(
+                    width: 380,
+                    height: 380,
+                    shape: BoxShape.circle,
+                    bgColor: primaryColor.withValues(alpha: 0.1),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(52),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          AppContainer(
+                            bgColor: primaryColor,
+                            borderRadius: BorderRadius.circular(12),
+                            padding: const EdgeInsets.all(10),
+                            child: const Icon(
+                              Icons.school_rounded,
+                              color: whiteColor,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          AppTextBold(
+                            text: "IU Auditor",
+                            color: whiteColor,
+                            fontSize: 18,
+                            fontFamily: FontFamily.inter,
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      AppAssetImage(
+                        imagePath: logo,
+                        height: 52,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 28),
+                      AppTextBold(
+                        text: "Security\nUpdate",
+                        color: whiteColor,
+                        fontSize: 44,
+                        fontFamily: FontFamily.inter,
+                      ),
+                      const SizedBox(height: 16),
+                      AppTextRegular(
+                        text:
+                            "Set a strong password to protect\nyour auditor account and maintain\ndata integrity.",
+                        color: whiteColor.withValues(alpha: 0.6),
+                        fontSize: 14,
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          AppContainer(
+                            width: 32,
+                            height: 2,
+                            bgColor: primaryColor,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          const SizedBox(width: 10),
+                          AppTextRegular(
+                            text: "Iqra University Security Protocol",
+                            color: whiteColor.withValues(alpha: 0.4),
+                            fontSize: 12,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // ── Right Panel (Form) ──
+        Expanded(
+          flex: 4,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 40),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppTextBold(
+                      text: "Reset Password",
+                      color: navyBlueColor,
+                      fontSize: 28,
+                      fontFamily: FontFamily.inter,
+                    ),
+                    const SizedBox(height: 6),
+                    AppTextRegular(
+                      text: "Please enter your new credentials to continue",
+                      color: descriptiveColor,
+                      fontSize: 14,
+                    ),
+                    const SizedBox(height: 36),
+                    _ResetPasswordForm(controller: controller),
+                    const SizedBox(height: 32),
+                    const Divider(color: Color(0xFFE2E8F0)),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: AppTextRegular(
+                        text:
+                            "For auditor access only. Contact admin if you need assistance.",
+                        color: iconColor,
+                        fontSize: 12,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────
+// SHARED BRANDING PANEL (Mobile)
 // ─────────────────────────────────────────
 class _BrandingPanel extends StatelessWidget {
   const _BrandingPanel();
@@ -166,7 +324,7 @@ class _BrandingPanel extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           AppTextRegular(
-            text: "Sign in to view and conduct faculty audits",
+            text: "Reset your account password",
             color: whiteColor.withValues(alpha: 0.65),
             fontSize: 13,
           ),
@@ -188,7 +346,12 @@ class _ResetPasswordForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const AppTextSemiBold(text: "New Password", fontSize: 13),
+        AppTextSemiBold(
+          text: "New Password",
+          color: navyBlueColor,
+          fontSize: 13,
+          fontFamily: FontFamily.inter,
+        ),
         const SizedBox(height: 6),
         Obx(
           () => AppTextField(
@@ -212,7 +375,12 @@ class _ResetPasswordForm extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 20),
-        const AppTextSemiBold(text: "Confirm New Password", fontSize: 13),
+        AppTextSemiBold(
+          text: "Confirm New Password",
+          color: navyBlueColor,
+          fontSize: 13,
+          fontFamily: FontFamily.inter,
+        ),
         const SizedBox(height: 6),
         Obx(
           () => AppTextField(
@@ -240,7 +408,9 @@ class _ResetPasswordForm extends StatelessWidget {
           width: double.infinity,
           child: Obx(
             () => AppButton(
-              txt: controller.isLoading.value ? "Processing..." : "Next  →",
+              txt: controller.isLoading.value
+                  ? "Processing..."
+                  : "Update Password  →",
               padding: const EdgeInsets.symmetric(vertical: 15),
               onPress: controller.isLoading.value
                   ? null
@@ -251,35 +421,6 @@ class _ResetPasswordForm extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────
-// DESKTOP LAYOUT (Fallback)
-// ─────────────────────────────────────────
-class _DesktopLayout extends StatelessWidget {
-  final ResetPasswordController controller;
-  const _DesktopLayout({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    // You can implement a two-pane layout here similar to login.dart
-    // For now, centering the mobile form for consistency
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 450),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(40),
-            child: _ResetPasswordForm(controller: controller),
-          ),
-        ),
-      ),
     );
   }
 }
