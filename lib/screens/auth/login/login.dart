@@ -129,7 +129,7 @@ class _MobileBrandingPanel extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 60, bottom: 60),
-      color: navyBlueColor,
+      color: const Color.fromARGB(255, 43, 87, 151),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -138,7 +138,12 @@ class _MobileBrandingPanel extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: primaryColor.withValues(alpha: 0.25),
+              color: const Color.fromARGB(
+                255,
+                59,
+                122,
+                216,
+              ).withValues(alpha: 0.25),
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(
