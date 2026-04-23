@@ -47,6 +47,24 @@ class AuditsScreen extends StatelessWidget {
               Expanded(
                 child: GetBuilder<AuditsController>(
                   builder: (ctrl) {
+                    // Loading state
+                    if (ctrl.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    // Error state
+                    if (ctrl.errorMessage != null) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: AppTextRegular(
+                            text: 'Failed to load reviews: ${ctrl.errorMessage}',
+                            color: descriptiveColor,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }
+
                     final teachers = ctrl.filtered;
 
                     if (teachers.isEmpty) {
@@ -641,6 +659,8 @@ class _ActionButton extends StatelessWidget {
       onPress: () {
         Get.delete<AuditFormController>(tag: teacher.name, force: true);
         final ctrl = AuditFormController(
+          reviewId: teacher.reviewId,
+          formId: teacher.formId,
           teacherName: teacher.name,
           department: teacher.department,
           specialization: teacher.specialization,
