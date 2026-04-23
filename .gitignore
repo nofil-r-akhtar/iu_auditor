@@ -18,11 +18,6 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
@@ -30,18 +25,19 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+/coverage/
+
+# ─────────────────────────────────────────────────────
+# BUILD FOLDER RULES — order matters!
+# 1. Ignore everything inside /build/
+# 2. Then re-include /build/web/ (for Vercel)
+# ─────────────────────────────────────────────────────
+/build/*
 !/build/web/
 !/build/web/**
-/coverage/
-/build/*
 
 # Symbolication related
 app.*.symbols
 
 # Obfuscation related
 app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
