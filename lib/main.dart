@@ -5,9 +5,8 @@ import 'package:iu_auditor/core/service_locator.dart';
 import 'package:iu_auditor/screens/auth/login/login.dart';
 
 void main() {
-  // ── Register all services (mock or real, based on ApiConfig.useMock) ──
+  WidgetsFlutterBinding.ensureInitialized();
   ServiceLocator.init();
-
   runApp(const MyApp());
 }
 
