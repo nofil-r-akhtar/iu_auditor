@@ -6,6 +6,16 @@ import 'package:iu_auditor/screens/home/home_screen.dart';
 class ChangePasswordController extends GetxController {
   final IAuthService _authService = Get.find<IAuthService>();
 
+  /// Email and old (temporary) password — passed in from LoginController
+  /// since the user JUST typed them. Avoids asking again.
+  final String email;
+  final String oldPassword;
+
+  ChangePasswordController({
+    required this.email,
+    required this.oldPassword,
+  });
+
   final newPasswordController     = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -26,6 +36,8 @@ class ChangePasswordController extends GetxController {
       newPasswordError.value = 'Password is required'; valid = false;
     } else if (pw.length < 6) {
       newPasswordError.value = 'Password must be at least 6 characters'; valid = false;
+    } else if (pw == oldPassword) {
+      newPasswordError.value = 'New password must differ from the old one'; valid = false;
     } else {
       newPasswordError.value = '';
     }
@@ -47,6 +59,8 @@ class ChangePasswordController extends GetxController {
       isLoading.value = true;
 
       final res = await _authService.firstLoginChangePassword(
+        email:       email,
+        oldPassword: oldPassword,
         newPassword: newPasswordController.text.trim(),
       );
 

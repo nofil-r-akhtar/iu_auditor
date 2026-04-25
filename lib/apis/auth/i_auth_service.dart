@@ -1,8 +1,6 @@
 import 'package:iu_auditor/modal_class/user/user_profile.dart';
 
 abstract class IAuthService {
-  /// Login — returns normalized map:
-  ///   success, token, mustChangePassword, user (UserProfile)
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
@@ -23,11 +21,14 @@ abstract class IAuthService {
     required String newPassword,
   });
 
-  /// Fetch logged-in user's profile — requires token already set
   Future<UserProfile?> fetchProfile();
 
-  /// Change password on first login (no OTP required — uses Bearer token)
+  /// Change password on first login.
+  /// Backend requires the email + old (temporary) password
+  /// in addition to the new one.
   Future<Map<String, dynamic>> firstLoginChangePassword({
+    required String email,
+    required String oldPassword,
     required String newPassword,
   });
 }

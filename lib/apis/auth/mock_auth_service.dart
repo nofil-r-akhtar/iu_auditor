@@ -98,6 +98,8 @@ class MockAuthService implements IAuthService {
 
   @override
   Future<Map<String, dynamic>> firstLoginChangePassword({
+    required String email,
+    required String oldPassword,
     required String newPassword,
   }) async {
     await _delay();

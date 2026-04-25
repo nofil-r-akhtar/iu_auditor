@@ -81,7 +81,10 @@ class LoginController extends GetxController {
       final mustChange = response['mustChangePassword'] == true;
       if (mustChange) {
         // Redirect to change password screen — do NOT go to home
-        Get.offAll(() => const ChangePasswordScreen());
+        Get.offAll(() => ChangePasswordScreen(
+          email: emailController.text.trim(),
+          oldPassword: passwordController.text.trim(),
+        ));
         return;
       }
 

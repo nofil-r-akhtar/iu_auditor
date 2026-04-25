@@ -126,13 +126,19 @@ class RealAuthService implements IAuthService {
 
   @override
   Future<Map<String, dynamic>> firstLoginChangePassword({
+    required String email,
+    required String oldPassword,
     required String newPassword,
   }) async {
     try {
       return await _request.makeRequest(
         url: ApisEndPoints.firstLoginChangePassword,
         method: Request.post,
-        params: {'new_password': newPassword},
+        params: {
+          'email':        email,
+          'old_password': oldPassword,
+          'new_password': newPassword,
+        },
       );
     } catch (e) {
       throw Exception('First login change password failed: $e');

@@ -13,11 +13,20 @@ import 'package:iu_auditor/const/enums.dart';
 import 'change_password_controller.dart';
 
 class ChangePasswordScreen extends StatelessWidget {
-  const ChangePasswordScreen({super.key});
+  final String email;
+  final String oldPassword;
+  const ChangePasswordScreen({
+    required this.email,
+    required this.oldPassword,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ChangePasswordController());
+    final controller = Get.put(ChangePasswordController(
+      email: email,
+      oldPassword: oldPassword,
+    ));
 
     return Scaffold(
       backgroundColor: bgColor,
