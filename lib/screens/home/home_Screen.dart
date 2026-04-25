@@ -377,10 +377,21 @@ class _MobileDashboard extends StatelessWidget {
                 AppContainer(
                   bgColor: whiteColor,
                   borderRadius: BorderRadius.circular(14),
-                  child: Column(
-                    children: controller.recentActivity.map((a) =>
-                        _ActivityItem(activity: a)).toList(),
-                  ),
+                  padding: controller.recentActivity.isEmpty
+                      ? const EdgeInsets.all(24)
+                      : EdgeInsets.zero,
+                  child: controller.recentActivity.isEmpty
+                      ? Center(
+                          child: AppTextRegular(
+                            text: 'No recent activity yet',
+                            color: descriptiveColor,
+                            fontSize: 13,
+                          ),
+                        )
+                      : Column(
+                          children: controller.recentActivity.map((a) =>
+                              _ActivityItem(activity: a)).toList(),
+                        ),
                 ),
                 const SizedBox(height: 24),
               ],
@@ -1007,7 +1018,19 @@ class _RecentActivity extends StatelessWidget {
         AppTextSemiBold(text: 'Recent Activity', color: navyBlueColor,
             fontSize: 15, fontFamily: FontFamily.inter),
         const SizedBox(height: 16),
-        ...controller.recentActivity.map((a) => _ActivityItem(activity: a)),
+        if (controller.recentActivity.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Center(
+              child: AppTextRegular(
+                text: 'No recent activity yet',
+                color: descriptiveColor,
+                fontSize: 13,
+              ),
+            ),
+          )
+        else
+          ...controller.recentActivity.map((a) => _ActivityItem(activity: a)),
       ]),
     );
   }

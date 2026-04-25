@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iu_auditor/apis/audit_reviews/i_audit_reviews_service.dart';
 import 'package:iu_auditor/modal_class/audit/audit_question_model.dart';
+import 'package:iu_auditor/screens/home/audits/audits_controller.dart';
 
 class AuditFormController extends GetxController {
   final IAuditReviewsService _service = Get.find<IAuditReviewsService>();
@@ -199,6 +200,17 @@ class AuditFormController extends GetxController {
       if (res['success'] != true) {
         Get.snackbar('Error', res['message']?.toString() ?? 'Submit failed');
         return;
+      }
+
+      // ── Refresh audits list so the submitted review flips to 'completed' ──
+      // 1. Instant local update — no API wait, UI feels snappy
+      try {
+        final auditsCtrl = Get.find<AuditsController>();
+        auditsCtrl.markCompletedLocally(reviewId);
+        // 2. Background refetch to sync with server state
+        auditsCtrl.fetchReviews();
+      } catch (_) {
+        // AuditsController not registered — safe to ignore
       }
 
       // Success — trigger navigation to success screen

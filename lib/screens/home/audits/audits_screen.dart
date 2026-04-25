@@ -94,25 +94,33 @@ class AuditsScreen extends StatelessWidget {
                           bottomLeft: Radius.circular(12),
                           bottomRight: Radius.circular(12),
                         ),
-                        child: ListView.separated(
-                          padding: EdgeInsets.zero,
-                          itemCount: teachers.length,
-                          separatorBuilder: (_, __) => const Divider(
-                            height: 1,
-                            color: Color(0xFFE2E8F0),
+                        child: RefreshIndicator(
+                          onRefresh: () => ctrl.fetchReviews(),
+                          child: ListView.separated(
+                            padding: EdgeInsets.zero,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: teachers.length,
+                            separatorBuilder: (_, __) => const Divider(
+                              height: 1,
+                              color: Color(0xFFE2E8F0),
+                            ),
+                            itemBuilder: (context, index) =>
+                                _TeacherRow(teacher: teachers[index]),
                           ),
-                          itemBuilder: (context, index) =>
-                              _TeacherRow(teacher: teachers[index]),
                         ),
                       );
                     } else {
                       // ── CARD VIEW (mobile) ──
-                      return ListView.separated(
-                        padding: EdgeInsets.zero,
-                        itemCount: teachers.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) =>
-                            _TeacherCard(teacher: teachers[index]),
+                      return RefreshIndicator(
+                        onRefresh: () => ctrl.fetchReviews(),
+                        child: ListView.separated(
+                          padding: EdgeInsets.zero,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: teachers.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          itemBuilder: (context, index) =>
+                              _TeacherCard(teacher: teachers[index]),
+                        ),
                       );
                     }
                   },
