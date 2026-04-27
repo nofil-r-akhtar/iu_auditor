@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:get/get.dart';
+import 'package:iu_auditor/screens/auth/login/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:iu_auditor/apis/apis_end_points.dart';
 import 'package:iu_auditor/const/enums.dart';
 import 'package:iu_auditor/apis/connectivity.dart';
+import 'package:iu_auditor/services/storage_service.dart';
 
 class ApiRequest {
   final CheckConnectivity _connectivity = CheckConnectivity();
@@ -11,12 +14,15 @@ class ApiRequest {
 
   static void setAuthToken(String token) {
     headers['Authorization'] = 'Bearer $token';
+    // Persist for next app session — fire and forget
+    StorageService().saveToken(token);
   }
 
   // FIX: token was never removed on logout, meaning a second user logging in
   // on the same session could briefly send the previous user's token.
   static void clearAuthToken() {
     headers.remove('Authorization');
+    StorageService().clearToken();
   }
 
   Future<Map<String, dynamic>> makeRequest({
@@ -78,6 +84,20 @@ class ApiRequest {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return responseBody;
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        // Token expired or invalid — clear it and bounce to login
+        ApiRequest.clearAuthToken();
+        // Avoid double-redirect if we're already on login page
+        if (Get.currentRoute != '/Login' &&
+            !(Get.currentRoute.toLowerCase().contains('login'))) {
+          Get.offAll(() => const Login());
+          Get.snackbar(
+            'Session expired',
+            'Please log in again.',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
+        throw Exception('Session expired');
       } else if (response.statusCode == 400) {
         if (responseBody.containsKey('message')) {
           return {'error': responseBody['message']};
