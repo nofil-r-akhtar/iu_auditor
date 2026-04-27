@@ -153,11 +153,13 @@ class AuditsController extends GetxController {
     }
   }
 
-  /// 🔒 SECURITY: Only show audits for teachers in the lecturer's department.
-  /// If lecturer has no department set, show nothing (safer default).
+  /// 🔒 Department filter — extra client-side safety on top of backend filter.
+  /// If department isn't loaded yet (race condition or missing field),
+  /// show what the API returned — backend already filtered it server-side.
   void _applyDepartmentFilter() {
     if (_lecturerDepartment.isEmpty) {
-      allTeachers = [];
+      // No department known → trust backend's filter, show everything API gave us
+      allTeachers = List.from(_allFromApi);
       return;
     }
     allTeachers = _allFromApi
