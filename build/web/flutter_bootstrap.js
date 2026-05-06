@@ -36,8 +36,7 @@ if (!window._flutter) {
 }
 _flutter.buildConfig = {"engineRevision":"ddf47dd3ff96dbde6d9c614db0d7f019d7c7a2b7","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}]};
 
-_flutter.loader.load({
-  serviceWorkerSettings: {
-    serviceWorkerVersion: "2840740942"
-  }
-});
+
+// Omitting `serviceWorkerSettings` disables service worker registration.
+// This avoids the "Failed to register a ServiceWorker" error on Vercel.
+_flutter.loader.load();
