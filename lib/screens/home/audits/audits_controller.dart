@@ -95,7 +95,13 @@ class AuditsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _bootstrap();
+    // ⏱️ Defer to next frame — same reason as HomeController. Without this,
+    // the loading-state update() fires before GetBuilder subscribes, and
+    // when reviews load fast (or come from cache), the UI doesn't refresh
+    // until the user interacts with the screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _bootstrap();
+    });
   }
 
   /// Loads reviews for this lecturer.

@@ -79,7 +79,13 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     _auditsController = Get.put(AuditsController());
-    fetchProfile();   // 🔑 Always load profile fresh from API
+    // ⏱️ Defer to AFTER first frame so GetBuilder<HomeController> has
+    // subscribed to update() events. Without this, cache-hit fetches fire
+    // their update() synchronously and the UI silently drops it — visible
+    // symptom is "data only shows after user interacts with the screen."
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchProfile();
+    });
   }
 
   /// Loads the logged-in user's profile from the auth/me API.
