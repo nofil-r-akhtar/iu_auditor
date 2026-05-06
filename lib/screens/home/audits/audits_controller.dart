@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iu_auditor/apis/auth/i_auth_service.dart';
 import 'package:iu_auditor/services/user_session.dart';
+import 'package:iu_auditor/screens/home/home_controller.dart';
 import 'package:iu_auditor/apis/audit_reviews/i_audit_reviews_service.dart';
 import 'package:iu_auditor/modal_class/audit/audit_review_model.dart';
 
@@ -111,7 +112,7 @@ class AuditsController extends GetxController {
     try {
       isLoading = true;
       errorMessage = null;
-      update();
+      _notifyAll();
 
       // 1. Read cached profile (no extra API call!)
       //    Falls back to fetching only if for some reason it isn't cached.
@@ -128,7 +129,7 @@ class AuditsController extends GetxController {
       errorMessage = e.toString();
     } finally {
       isLoading = false;
-      update();
+      _notifyAll();
     }
   }
 
@@ -137,7 +138,7 @@ class AuditsController extends GetxController {
     try {
       isLoading = true;
       errorMessage = null;
-      update();
+      _notifyAll();
 
       final reviews = await _service.getMyReviews();
       _allFromApi = reviews.map(AuditTeacher.fromReview).toList();
@@ -154,7 +155,22 @@ class AuditsController extends GetxController {
       errorMessage = e.toString();
     } finally {
       isLoading = false;
-      update();
+      _notifyAll();
+    }
+  }
+
+  /// Updates both this controller AND HomeController.
+  /// Home tab's stats (pending/inProgress count, upcoming audits, recent
+  /// activity) all derive from this controller's data, but they're rendered
+  /// inside a GetBuilder<HomeController>. So when our data changes we must
+  /// notify HomeController too — otherwise the dashboard stays stale until
+  /// the user manually interacts with it.
+  void _notifyAll() {
+    update();
+    try {
+      Get.find<HomeController>().update();
+    } catch (_) {
+      // HomeController not yet registered — safe to ignore
     }
   }
 
@@ -179,7 +195,7 @@ class AuditsController extends GetxController {
     if (_lecturerDepartment == department) return;
     _lecturerDepartment = department;
     _applyDepartmentFilter();
-    update();
+    _notifyAll();
   }
 
   void markCompletedLocally(String reviewId) {
@@ -192,7 +208,7 @@ class AuditsController extends GetxController {
     if (visIdx >= 0) {
       allTeachers[visIdx] =
           allTeachers[visIdx].copyWithStatus(AuditStatus.completed);
-      update();
+      _notifyAll();
     }
   }
 
