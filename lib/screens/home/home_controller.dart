@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iu_auditor/apis/api_request.dart';
+import 'package:iu_auditor/services/user_session.dart';
 import 'package:iu_auditor/apis/auth/i_auth_service.dart';
 import 'package:iu_auditor/components/home_components/screen_table/screen_table_controller.dart';
 import 'package:iu_auditor/modal_class/user/user_profile.dart';
@@ -85,11 +86,18 @@ class HomeController extends GetxController {
   /// Called automatically on init — guarantees profile is set even if
   /// LoginController didn't manage to push it before navigation.
   Future<void> fetchProfile() async {
+    // 🔑 If LoginController/Splash already cached the profile, skip the API
+    // call — this prevents duplicate /auth/me hits after login.
+    if (UserSession.hasProfile) {
+      setUserProfile(UserSession.profile!);
+      return;
+    }
+
     try {
       isLoadingProfile = true;
       update();
 
-      final profile = await _authService.fetchProfile();
+      final profile = await UserSession.get(_authService);
       if (profile != null) {
         setUserProfile(profile);
       }
@@ -133,6 +141,7 @@ class HomeController extends GetxController {
   void signOut() {
     Get.delete<LoginController>(force: true);
     ApiRequest.clearAuthToken();
+    UserSession.clear();   // 🔑 invalidate cached profile
     Get.offAll(() => const Login());
   }
 

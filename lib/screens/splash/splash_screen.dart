@@ -10,6 +10,7 @@ import 'package:iu_auditor/const/enums.dart';
 import 'package:iu_auditor/screens/auth/login/login.dart';
 import 'package:iu_auditor/screens/home/home_Screen.dart';
 import 'package:iu_auditor/services/storage_service.dart';
+import 'package:iu_auditor/services/user_session.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -50,11 +51,13 @@ class _SplashScreenState extends State<SplashScreen> {
         // Server rejected the token (401, 404, etc.) → expired/invalid
         await storage.clearToken();
         ApiRequest.clearAuthToken();
+        UserSession.clear();
         Get.offAll(() => const Login());
         return;
       }
 
-      // All good — go straight to home
+      // All good — cache the profile so other controllers don't re-fetch
+      UserSession.set(profile);
       Get.offAll(() => const HomeScreen());
     } catch (_) {
       // Network error or anything else — be safe, send to login

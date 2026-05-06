@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iu_auditor/apis/api_request.dart';
+import 'package:iu_auditor/services/user_session.dart';
 import 'package:iu_auditor/apis/auth/i_auth_service.dart';
 import 'package:iu_auditor/modal_class/user/user_profile.dart';
 import 'package:iu_auditor/screens/auth/change_password/change_password.dart';
@@ -61,19 +62,20 @@ class LoginController extends GetxController {
       if (token.isNotEmpty) ApiRequest.setAuthToken(token);
 
       // ── Fetch profile (me API) ────────────────────────────
+      // Once fetched, cached in UserSession so HomeController and
+      // AuditsController DON'T re-fire /auth/me on init.
       final UserProfile? profile = response['user'] is UserProfile
           ? response['user'] as UserProfile
           : await _authService.fetchProfile();
 
       if (profile != null) {
-        // Pre-populate HomeController with user data so it's
-        // available immediately when HomeScreen builds
+        UserSession.set(profile);   // 🔑 Single source of truth
+
         try {
           final homeCtrl = Get.find<HomeController>();
           homeCtrl.setUserProfile(profile);
         } catch (_) {
-          // HomeController not yet registered — that's fine,
-          // HomeScreen will call setUserProfile in its onInit
+          // HomeController not yet registered — that's fine
         }
       }
 

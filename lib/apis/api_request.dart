@@ -6,6 +6,7 @@ import 'package:iu_auditor/apis/apis_end_points.dart';
 import 'package:iu_auditor/const/enums.dart';
 import 'package:iu_auditor/apis/connectivity.dart';
 import 'package:iu_auditor/services/storage_service.dart';
+import 'package:iu_auditor/services/user_session.dart';
 
 class ApiRequest {
   final CheckConnectivity _connectivity = CheckConnectivity();
@@ -23,6 +24,7 @@ class ApiRequest {
   static void clearAuthToken() {
     headers.remove('Authorization');
     StorageService().clearToken();
+    UserSession.clear();   // 🔑 also wipe cached profile
   }
 
   Future<Map<String, dynamic>> makeRequest({
@@ -31,6 +33,40 @@ class ApiRequest {
     Map<String, String>? headers,
     dynamic params,
     bool includeAuth = true,
+  }) async {
+    // Retry up to 2 times for network failures / timeouts.
+    // This handles Render free-tier cold-starts where the first request
+    // sometimes times out while the server is waking up.
+    Object? lastError;
+    for (int attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await _attemptRequest(
+          url: url, method: method,
+          headers: headers, params: params,
+        );
+      } catch (e) {
+        lastError = e;
+        // Don't retry on 401/403 (session expired — already redirected)
+        // or 400 (bad request — won't change on retry)
+        final s = e.toString().toLowerCase();
+        if (s.contains('session expired') ||
+            s.contains('400')) {
+          rethrow;
+        }
+        // Brief backoff before retry — gives server time to wake up
+        if (attempt == 0) {
+          await Future.delayed(const Duration(seconds: 2));
+        }
+      }
+    }
+    throw Exception('Error: $lastError');
+  }
+
+  Future<Map<String, dynamic>> _attemptRequest({
+    required String url,
+    required Request method,
+    Map<String, String>? headers,
+    dynamic params,
   }) async {
     try {
       bool isConnected = await _connectivity.isConnected();

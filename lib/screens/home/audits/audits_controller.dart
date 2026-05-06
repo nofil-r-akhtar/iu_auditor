@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iu_auditor/apis/auth/i_auth_service.dart';
+import 'package:iu_auditor/services/user_session.dart';
 import 'package:iu_auditor/apis/audit_reviews/i_audit_reviews_service.dart';
 import 'package:iu_auditor/modal_class/audit/audit_review_model.dart';
 
@@ -97,24 +98,23 @@ class AuditsController extends GetxController {
     _bootstrap();
   }
 
-  /// Fetches profile + reviews together so the department filter is
-  /// applied correctly on the very first render.
+  /// Loads reviews for this lecturer.
+  /// Reads department from UserSession cache (set by Login or Splash) — so
+  /// we DON'T fire another /auth/me call here.
   Future<void> _bootstrap() async {
     try {
       isLoading = true;
       errorMessage = null;
       update();
 
-      // 1. Get lecturer's profile (for department) and reviews in parallel
-      final results = await Future.wait([
-        _authService.fetchProfile(),
-        _service.getMyReviews(),
-      ]);
-
-      final profile = results[0] as dynamic;
-      final reviews = results[1] as List<AuditReview>;
-
+      // 1. Read cached profile (no extra API call!)
+      //    Falls back to fetching only if for some reason it isn't cached.
+      final profile = UserSession.profile ??
+                      await UserSession.get(_authService);
       _lecturerDepartment = profile?.department ?? '';
+
+      // 2. Fetch reviews — single API call
+      final reviews = await _service.getMyReviews();
       _allFromApi = reviews.map(AuditTeacher.fromReview).toList();
 
       _applyDepartmentFilter();
@@ -136,12 +136,11 @@ class AuditsController extends GetxController {
       final reviews = await _service.getMyReviews();
       _allFromApi = reviews.map(AuditTeacher.fromReview).toList();
 
-      // If we never got the department (race condition), grab it now
+      // Use cached department if available; only fetch as last resort
       if (_lecturerDepartment.isEmpty) {
-        try {
-          final profile = await _authService.fetchProfile();
-          _lecturerDepartment = profile?.department ?? '';
-        } catch (_) {}
+        final profile = UserSession.profile ??
+                        await UserSession.get(_authService);
+        _lecturerDepartment = profile?.department ?? '';
       }
 
       _applyDepartmentFilter();
